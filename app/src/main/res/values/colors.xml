@@ -2,4 +2,6 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="background_light">#F0F0F0</color> <!-- 원하는 색상으로 -->
+    <color name="main_color">#6CD28B</color>
 </resources>
