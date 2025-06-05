@@ -11,15 +11,16 @@
     tools:context=".MainActivity">
 
     <!-- 상단 앱 이름 + 현재 화면 텍스트 -->
+
     <TextView
         android:id="@+id/app_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="28dp"
         android:text="SwiPic"
-        android:textSize="20sp"
+        android:textSize="30sp"
         android:textStyle="bold"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -43,23 +44,23 @@
 
     <ImageButton
         android:id="@+id/btn_trash"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="4dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="28dp"
+        android:layout_marginEnd="16dp"
         android:background="?android:attr/selectableItemBackgroundBorderless"
         android:contentDescription="휴지통"
-
+        android:scaleType="centerInside"
         android:src="@drawable/ic_trash"
         app:layout_constraintEnd_toStartOf="@id/btn_home"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
         android:id="@+id/btn_home"
-        android:layout_width="69dp"
-        android:layout_height="63dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="28dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="28dp"
+        android:layout_marginEnd="32dp"
         android:background="?android:attr/selectableItemBackgroundBorderless"
         android:contentDescription="홈"
         android:scaleType="centerInside"
@@ -71,7 +72,7 @@
         android:id="@+id/filter_buttons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="12dp"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.532"
@@ -122,20 +123,22 @@
         android:layout_height="419dp"
         android:clipToPadding="false"
         android:orientation="horizontal"
-        android:padding="24dp"
+        android:paddingStart="60dp"
+        android:paddingEnd="60dp"
         app:layout_constraintBottom_toTopOf="@id/photo_location"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.492"
+        app:layout_constraintHorizontal_bias="0.477"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/filter_buttons"
-        app:layout_constraintVertical_bias="0.756" />
+        app:layout_constraintVertical_bias="0.421" />
+
+
 
     <TextView
         android:id="@+id/photo_location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="60dp"
-        android:background="#5A00000"
+        android:layout_marginBottom="44dp"
         android:backgroundTint="#6A1A1818"
         android:clickable="true"
         android:foreground="?attr/selectableItemBackground"
@@ -146,4 +149,48 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="352dp"
+        android:layout_marginTop="12dp"
+        android:contentDescription="오른쪽 화살표"
+        android:src="@drawable/ic_arrow_right"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/photo_viewpager" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="320dp"
+        android:layout_marginTop="12dp"
+        android:text="보관"
+        android:textColor="@android:color/black"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/photo_viewpager" />
+
+    <ImageView
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="12dp"
+        android:contentDescription="왼쪽 화살표"
+        android:src="@drawable/ic_arrow_left"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/photo_viewpager" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="12dp"
+        android:text="삭제"
+        android:textColor="@android:color/black"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/photo_viewpager" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
