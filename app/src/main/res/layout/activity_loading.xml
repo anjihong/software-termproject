@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#D8FEE8">  <!-- 연한 연두 배경색 -->
+
+    <!-- 1) 둥근 그라데이션 컨테이너 -->
+    <View
+        android:id="@+id/rounded_container_loading"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="32dp"
+        android:background="@drawable/rounded_gradient"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 2) “SwiPic” 텍스트 + 아이콘(swipic_icon.png)을 나란히 배치 -->
+    <LinearLayout
+        android:id="@+id/logo_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toTopOf="@id/rounded_container_loading"
+        app:layout_constraintStart_toStartOf="@id/rounded_container_loading"
+        app:layout_constraintEnd_toEndOf="@id/rounded_container_loading"
+        android:layout_marginTop="200dp">  <!-- 필요 시 marginTop 값 조정 -->
+
+        <!-- 2-1) 텍스트 로고 -->
+
+        <!-- 2-2) 아이콘 로고 -->
+        <TextView
+            android:id="@+id/tv_logo_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="SwiPic"
+            android:textColor="@android:color/white"
+            android:textSize="44sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/iv_logo_icon"
+            android:layout_width="84dp"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:contentDescription="SwiPic Icon"
+            android:scaleType="fitCenter"
+            android:src="@drawable/swipic_icon" />
+    </LinearLayout>
+
+    <!-- 3) 로고 바로 아래 설명 텍스트 -->
+    <TextView
+        android:id="@+id/tv_loading_desc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="슬라이드로 사진 삭제"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/logo_container"
+        app:layout_constraintStart_toStartOf="@id/rounded_container_loading"
+        app:layout_constraintEnd_toEndOf="@id/rounded_container_loading"
+        android:layout_marginTop="16dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
