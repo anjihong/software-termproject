@@ -127,7 +127,7 @@
         app:layout_constraintHorizontal_bias="0.492"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/filter_buttons"
-        app:layout_constraintVertical_bias="0.756" />
+        app:layout_constraintVertical_bias="0.338" />
 
     <TextView
         android:id="@+id/photo_location"
