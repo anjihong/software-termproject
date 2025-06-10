@@ -112,12 +112,14 @@ class MainActivity : AppCompatActivity() {
                 }
                 uris
             }
+            Log.d("PhotoLoad", "Loaded ${images.size} images")
 
             photoUris.clear()
             photoUris.addAll(images)
             photoAdapter = PhotoAdapter(photoUris)
             viewPager.adapter = photoAdapter
         }
+
     }
 
     private fun uploadToFirebase(uri: Uri) {
