@@ -2,12 +2,10 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/category_delete_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_light"
-    tools:context=".CategoryDeleteActivity">
+    android:background="@color/background_light">
 
     <!-- 1) 상단 앱 이름 ("SwiPic") -->
     <TextView
@@ -108,177 +106,150 @@
     </LinearLayout>
 
     <!-- 6) 카테고리 그리드: 2x3 구조 -->
-<!--    <androidx.gridlayout.widget.GridLayout-->
-<!--        android:id="@+id/category_grid"-->
-<!--        android:layout_width="0dp"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginStart="24dp"-->
-<!--        android:layout_marginTop="24dp"-->
-<!--        android:layout_marginEnd="24dp"-->
-<!--        android:layout_marginBottom="20dp"-->
-<!--        app:rowCount="3"-->
-<!--        app:columnCount="2"-->
-<!--        app:useDefaultMargins="true"-->
-<!--        app:layout_constraintTop_toBottomOf="@id/filter_buttons"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent">-->
+    <androidx.gridlayout.widget.GridLayout
+        android:id="@+id/category_grid"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="20dp"
+        app:columnCount="2"
+        app:rowCount="3"
+        app:useDefaultMargins="true"
+        app:layout_constraintTop_toBottomOf="@id/filter_buttons"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-<!--        &lt;!&ndash; (1) 풍경 &ndash;&gt;-->
-<!--        <LinearLayout-->
-<!--            android:id="@+id/category_landscape"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:orientation="vertical"-->
-<!--            android:gravity="center_horizontal"-->
-<!--            android:clickable="true"-->
-<!--            android:foreground="?attr/selectableItemBackground"-->
-<!--            app:layout_columnWeight="1">-->
+        <!-- (1) 풍경 -->
+        <LinearLayout
+            android:id="@+id/category_landscape"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:clickable="true"
+            android:foreground="?attr/selectableItemBackground"
+            app:layout_columnWeight="1">
 
-<!--            <ImageView-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="0dp"-->
-<!--                android:layout_gravity="center"-->
-<!--                android:adjustViewBounds="true"-->
-<!--                android:src="@drawable/img_landscape"-->
-<!--                android:scaleType="centerCrop"-->
-<!--                app:layout_rowWeight="1"-->
-<!--                app:layout_columnWeight="1"-->
-<!--                tools:ignore="Suspicious0dp" />-->
+            <ImageView
+                android:id="@+id/img_landscape"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:src="@drawable/img_landscape"
+                android:scaleType="centerCrop"
+                android:background="@drawable/img_landscape"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="풍경"
+                android:textSize="14sp"/>
+        </LinearLayout>
 
-<!--            <TextView-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginTop="8dp"-->
-<!--                android:text="풍경"-->
-<!--                android:textSize="14sp"-->
-<!--                android:textColor="@android:color/black" />-->
-<!--        </LinearLayout>-->
+        <!-- (2) 사람 -->
+        <LinearLayout
+            android:id="@+id/category_person"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:clickable="true"
+            android:foreground="?attr/selectableItemBackground"
+            app:layout_columnWeight="1">
 
-<!--        &lt;!&ndash; (2) 사람 &ndash;&gt;-->
-<!--        <LinearLayout-->
-<!--            android:id="@+id/category_person"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:orientation="vertical"-->
-<!--            android:gravity="center_horizontal"-->
-<!--            android:clickable="true"-->
-<!--            android:foreground="?attr/selectableItemBackground"-->
-<!--            app:layout_columnWeight="1">-->
+            <ImageView
+                android:id="@+id/img_person"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:src="@drawable/img_person"
+                android:scaleType="centerCrop"
+                android:background="@drawable/img_person"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="사람"
+                android:textSize="14sp"/>
+        </LinearLayout>
 
-<!--            <ImageView-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="0dp"-->
-<!--                android:layout_gravity="center"-->
-<!--                android:adjustViewBounds="true"-->
-<!--                android:src="@drawable/img_person"-->
-<!--                android:scaleType="centerCrop"-->
-<!--                app:layout_rowWeight="1"-->
-<!--                app:layout_columnWeight="1"-->
-<!--                tools:ignore="Suspicious0dp" />-->
+        <!-- (3) 동물 -->
+        <LinearLayout
+            android:id="@+id/category_animal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:clickable="true"
+            android:foreground="?attr/selectableItemBackground"
+            app:layout_columnWeight="1">
 
-<!--            <TextView-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginTop="8dp"-->
-<!--                android:text="사람"-->
-<!--                android:textSize="14sp"-->
-<!--                android:textColor="@android:color/black" />-->
-<!--        </LinearLayout>-->
+            <ImageView
+                android:id="@+id/img_animal"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:src="@drawable/img_animal"
+                android:scaleType="centerCrop"
+                android:background="@drawable/rounded_corners_image"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="동물"
+                android:textSize="14sp"/>
+        </LinearLayout>
 
-<!--        &lt;!&ndash; (3) 동물 &ndash;&gt;-->
-<!--        <LinearLayout-->
-<!--            android:id="@+id/category_animal"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:orientation="vertical"-->
-<!--            android:gravity="center_horizontal"-->
-<!--            android:clickable="true"-->
-<!--            android:foreground="?attr/selectableItemBackground"-->
-<!--            app:layout_columnWeight="1">-->
+        <!-- (4) 음식 -->
+        <LinearLayout
+            android:id="@+id/category_food"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:clickable="true"
+            android:foreground="?attr/selectableItemBackground"
+            app:layout_columnWeight="1">
 
-<!--            <ImageView-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="0dp"-->
-<!--                android:layout_gravity="center"-->
-<!--                android:adjustViewBounds="true"-->
-<!--                android:src="@drawable/img_animal"-->
-<!--                android:scaleType="centerCrop"-->
-<!--                app:layout_rowWeight="1"-->
-<!--                app:layout_columnWeight="1"-->
-<!--                tools:ignore="Suspicious0dp" />-->
+            <ImageView
+                android:id="@+id/img_food"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:src="@drawable/img_food"
+                android:scaleType="centerCrop"
+                android:background="@drawable/rounded_corners_image"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="음식"
+                android:textSize="14sp"/>
+        </LinearLayout>
 
-<!--            <TextView-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginTop="8dp"-->
-<!--                android:text="동물"-->
-<!--                android:textSize="14sp"-->
-<!--                android:textColor="@android:color/black" />-->
-<!--        </LinearLayout>-->
+        <!-- (5) 기타 (두 칸 스팬) -->
+        <LinearLayout
+            android:id="@+id/category_etc"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:clickable="true"
+            android:foreground="?attr/selectableItemBackground"
+            app:layout_columnSpan="2"
+            app:layout_columnWeight="2">
 
-<!--        &lt;!&ndash; (4) 음식 &ndash;&gt;-->
-<!--        <LinearLayout-->
-<!--            android:id="@+id/category_food"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:orientation="vertical"-->
-<!--            android:gravity="center_horizontal"-->
-<!--            android:clickable="true"-->
-<!--            android:foreground="?attr/selectableItemBackground"-->
-<!--            app:layout_columnWeight="1">-->
-
-<!--            <ImageView-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="0dp"-->
-<!--                android:layout_gravity="center"-->
-<!--                android:adjustViewBounds="true"-->
-<!--                android:src="@drawable/img_food"-->
-<!--                android:scaleType="centerCrop"-->
-<!--                app:layout_rowWeight="1"-->
-<!--                app:layout_columnWeight="1"-->
-<!--                tools:ignore="Suspicious0dp" />-->
-
-<!--            <TextView-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginTop="8dp"-->
-<!--                android:text="음식"-->
-<!--                android:textSize="14sp"-->
-<!--                android:textColor="@android:color/black" />-->
-<!--        </LinearLayout>-->
-
-<!--        &lt;!&ndash; (5) 기타: 두 칸 span &ndash;&gt;-->
-<!--        <LinearLayout-->
-<!--            android:id="@+id/category_etc"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:orientation="vertical"-->
-<!--            android:gravity="center_horizontal"-->
-<!--            android:clickable="true"-->
-<!--            android:foreground="?attr/selectableItemBackground"-->
-<!--            app:layout_columnSpan="2"-->
-<!--            app:layout_columnWeight="2">-->
-
-<!--            <ImageView-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="0dp"-->
-<!--                android:layout_gravity="center"-->
-<!--                android:adjustViewBounds="true"-->
-<!--                android:src="@drawable/img_etc"-->
-<!--                android:scaleType="centerCrop"-->
-<!--                app:layout_rowWeight="1"-->
-<!--                app:layout_columnWeight="2"-->
-<!--                tools:ignore="Suspicious0dp" />-->
-
-<!--            <TextView-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginTop="8dp"-->
-<!--                android:text="기타"-->
-<!--                android:textSize="14sp"-->
-<!--                android:textColor="@android:color/black" />-->
-<!--        </LinearLayout>-->
-
-<!--    </androidx.gridlayout.widget.GridLayout>-->
-
+            <ImageView
+                android:id="@+id/img_etc"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:src="@drawable/img_etc"
+                android:scaleType="centerCrop"
+                android:background="@drawable/rounded_corners_image"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="기타"
+                android:textSize="14sp"/>
+        </LinearLayout>
+    </androidx.gridlayout.widget.GridLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
