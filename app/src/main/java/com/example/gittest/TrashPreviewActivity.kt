@@ -72,7 +72,7 @@ class TrashPreviewActivity : AppCompatActivity() {
 
                 val fetched = snapshot.documents.mapNotNull {
                     val uriStr = it.getString("uri")
-                    val uri = uriStr?.let { Uri.parse(uri) }
+                    val uri = uriStr?.let { str -> Uri.parse(str) }
                     val docId = it.id
                     if (uri != null) TrashPhoto(uri, docId) else null
                 }
