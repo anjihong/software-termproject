@@ -73,5 +73,18 @@ dependencies {
 
     // — TensorFlow Lite
     implementation("org.tensorflow:tensorflow-lite-task-vision:0.4.3")
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+
+    
+//
+//    kapt("com.github.bumptech.glide:compiler:4.16.0")
+//
+//// Firebase 코루틴 연동
+//    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4")
+//
+//// ViewPager2
+//    implementation("androidx.viewpager2:viewpager2:1.0.0")
+
+    implementation("androidx.gridlayout:gridlayout:1.0.0")
 }
 
