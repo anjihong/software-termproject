@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_light"
-    tools:context=".TrashActivity">
+    tools:context=".TrashPreviewActivity">
 
     <!-- 1) 상단 앱 이름 ("SwiPic") -->
     <TextView

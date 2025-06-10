@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("kotlin-kapt")
 }
 
 android {
@@ -84,6 +85,12 @@ dependencies {
 //
 //// ViewPager2
 //    implementation("androidx.viewpager2:viewpager2:1.0.0")
+
+    // Glide core
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+
+// Glide annotation processor (for @GlideModule)
+    kapt("com.github.bumptech.glide:compiler:4.16.0")
 
     implementation("androidx.gridlayout:gridlayout:1.0.0")
 }
