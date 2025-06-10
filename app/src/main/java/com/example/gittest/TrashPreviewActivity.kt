@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -27,53 +26,40 @@ class TrashPreviewActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: PhotoAdapter
-    private val trashPhotoUris = mutableListOf<Uri>()
+    private val trashPhotoList = mutableListOf<TrashPhoto>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_trash)
 
-        // 1) 뒤로가기 버튼 (btn_back) 누르면 이전 화면(MainActivity)으로 돌아가기
         findViewById<ImageButton>(R.id.btn_back).setOnClickListener {
             finish()
         }
 
-        // 2) 홈 버튼 (btn_home) 누르면 MainActivity로 복귀 (중복 생성 방지)
         findViewById<ImageButton>(R.id.btn_home).setOnClickListener {
             Intent(this, MainActivity::class.java).apply {
-                // 이미 스택에 MainActivity가 있을 수도 있으니 FLAG 처리
                 flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                 startActivity(this)
             }
         }
 
-        // 3) 전달된 URI 리스트 꺼내기
-        val photoUris = intent
-            .getParcelableArrayListExtra<Uri>("photo_uris")
-        // 널이거나 빈 리스트면 빈 ArrayList로 초기화
-            ?: arrayListOf<Uri>()
-
-        // 4) RecyclerView 세팅
         recyclerView = findViewById(R.id.rv_trash_images)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        adapter = PhotoAdapter(photoUris)
+        adapter = PhotoAdapter(emptyList()) // 일단 빈 리스트로 초기화
         recyclerView.adapter = adapter
 
         fetchTrashPhotos()
 
-        // 5) 휴지통 비우기 버튼 누르면 토스트 (실제 삭제 로직은 여기에)
         findViewById<Button>(R.id.btn_empty_trash).setOnClickListener {
-            deletePhotosFromGallery(photoUris)
-            deleteFromFirebase(photoUris)
+            deletePhotosFromGallery(trashPhotoList.map { it.uri })
+            deleteFromFirebase(trashPhotoList)
             Toast.makeText(
                 this,
-                "사진 ${photoUris.size}개 일괄 삭제 처리!",
+                "사진 ${trashPhotoList.size}개 일괄 삭제 처리!",
                 Toast.LENGTH_SHORT
             ).show()
-            // TODO: MediaStore 삭제 등 실제 로직 추가
         }
     }
-
 
     private fun fetchTrashPhotos() {
         val firestore = Firebase.firestore
@@ -84,18 +70,22 @@ class TrashPreviewActivity : AppCompatActivity() {
                     .get()
                     .await()
 
-                val fetchedUris = snapshot.documents.mapNotNull {
+                val fetched = snapshot.documents.mapNotNull {
                     val uriStr = it.getString("uri")
-                    uriStr?.let { uri -> Uri.parse(uri) }
+                    val uri = uriStr?.let { str -> Uri.parse(str) }
+                    val docId = it.id
+                    if (uri != null) TrashPhoto(uri, docId) else null
                 }
 
-                trashPhotoUris.clear()
-                trashPhotoUris.addAll(fetchedUris)
+                trashPhotoList.clear()
+                trashPhotoList.addAll(fetched)
 
                 withContext(Dispatchers.Main) {
-                    adapter.notifyDataSetChanged()
+                    adapter = PhotoAdapter(trashPhotoList.map { it.uri })
+                    recyclerView.adapter = adapter
                 }
-                Log.d("Firestore", "불러온 삭제 후보 수: ${trashPhotoUris.size}")
+
+                Log.d("Firestore", "불러온 삭제 후보 수: ${trashPhotoList.size}")
             } catch (e: Exception) {
                 Log.e("Firestore", "삭제 후보 불러오기 실패", e)
             }
@@ -126,24 +116,16 @@ class TrashPreviewActivity : AppCompatActivity() {
         }
     }
 
-
-    private fun deleteFromFirebase(photoUris: List<Uri>) {
+    private fun deleteFromFirebase(photoList: List<TrashPhoto>) {
         val firestore = Firebase.firestore
-        val storage = Firebase.storage
 
         lifecycleScope.launch(Dispatchers.IO) {
-            for (uri in photoUris) {
-                val fileName = uri.lastPathSegment ?: continue
+            for (photo in photoList) {
                 try {
-                    // 1. Firebase Storage 삭제
-                    storage.reference.child("marked_for_deletion/$fileName").delete().await()
-
-                    // 2. Firestore 문서 삭제
-                    firestore.collection("trashPhotos").document(fileName).delete().await()
-
-                    Log.d("Firebase", "Deleted $fileName from Firebase")
+                    firestore.collection("trashPhotos").document(photo.documentId).delete().await()
+                    Log.d("Firebase", "Firestore 문서 삭제 완료: ${photo.documentId}")
                 } catch (e: Exception) {
-                    Log.e("Firebase", "Failed to delete $fileName", e)
+                    Log.e("Firebase", "Firestore 문서 삭제 실패: ${photo.documentId}", e)
                 }
             }
         }
