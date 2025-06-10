@@ -10,18 +10,7 @@
     android:background="@color/background_light"
     tools:context=".MainActivity">
 
-    <!-- activity_main.xml 의 최상단 ConstraintLayout 안 -->
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/nav_host_fragment"
-        android:name="androidx.navigation.fragment.NavHostFragment"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:navGraph="@navigation/nav_graph"
-        app:defaultNavHost="true"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+
 
 
     <!-- 상단 앱 이름 + 현재 화면 텍스트 -->

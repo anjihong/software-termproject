@@ -36,14 +36,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        val navController = findNavController(R.id.nav_host_fragment)
-
-        findViewById<Button>(R.id.btn_category_delete).setOnClickListener {
-            navController.navigate(R.id.categoryDeleteDest)
-        }
-
         requestStoragePermissionIfNeeded()
+
+        findViewById<Button>(R.id.btn_category_delete)
+            .setOnClickListener {
+                startActivity(
+                    Intent(this, CategoryDeleteActivity::class.java)
+                )
+            }
 
         viewPager = findViewById(R.id.photo_viewpager)
 
