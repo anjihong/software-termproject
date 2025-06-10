@@ -23,6 +23,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import android.widget.Button
+import androidx.navigation.findNavController
 
 
 class MainActivity : AppCompatActivity() {
@@ -34,6 +36,13 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val navController = findNavController(R.id.nav_host_fragment)
+
+        findViewById<Button>(R.id.btn_category_delete).setOnClickListener {
+            navController.navigate(R.id.categoryDeleteDest)
+        }
+
         requestStoragePermissionIfNeeded()
 
         viewPager = findViewById(R.id.photo_viewpager)
