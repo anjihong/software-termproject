@@ -2,7 +2,9 @@ package com.example.gittest
 
 import android.content.ContentUris
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
@@ -32,6 +34,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        requestStoragePermissionIfNeeded()
 
         viewPager = findViewById(R.id.photo_viewpager)
 
@@ -44,6 +47,20 @@ class MainActivity : AppCompatActivity() {
 
         viewPager.setPageTransformer(ZoomOutPageTransformer())
         setupSwipeGesture()
+    }
+
+    private fun requestStoragePermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // Android 13 이상
+            if (checkSelfPermission(android.Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(android.Manifest.permission.READ_MEDIA_IMAGES), 100)
+            }
+        } else {
+            // Android 12 이하
+            if (checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE), 101)
+            }
+        }
     }
 
     private fun setupSwipeGesture() {
