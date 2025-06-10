@@ -116,9 +116,9 @@
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
         android:layout_marginBottom="20dp"
-        android:columnCount="2"
-        android:rowCount="3"
-        android:useDefaultMargins="true"
+        app:rowCount="3"
+        app:columnCount="2"
+        app:useDefaultMargins="true"
         app:layout_constraintTop_toBottomOf="@id/filter_buttons"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -128,11 +128,11 @@
             android:id="@+id/category_landscape"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
             android:orientation="vertical"
             android:gravity="center_horizontal"
             android:clickable="true"
-            android:foreground="?attr/selectableItemBackground">
+            android:foreground="?attr/selectableItemBackground"
+            app:layout_columnWeight="1">
 
             <ImageView
                 android:layout_width="match_parent"
@@ -142,7 +142,8 @@
                 android:src="@drawable/img_landscape"
                 android:scaleType="centerCrop"
                 app:layout_rowWeight="1"
-                app:layout_columnWeight="1" />
+                app:layout_columnWeight="1"
+                tools:ignore="Suspicious0dp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -158,11 +159,11 @@
             android:id="@+id/category_person"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
             android:orientation="vertical"
             android:gravity="center_horizontal"
             android:clickable="true"
-            android:foreground="?attr/selectableItemBackground">
+            android:foreground="?attr/selectableItemBackground"
+            app:layout_columnWeight="1">
 
             <ImageView
                 android:layout_width="match_parent"
@@ -172,7 +173,8 @@
                 android:src="@drawable/img_person"
                 android:scaleType="centerCrop"
                 app:layout_rowWeight="1"
-                app:layout_columnWeight="1" />
+                app:layout_columnWeight="1"
+                tools:ignore="Suspicious0dp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -188,11 +190,11 @@
             android:id="@+id/category_animal"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
             android:orientation="vertical"
             android:gravity="center_horizontal"
             android:clickable="true"
-            android:foreground="?attr/selectableItemBackground">
+            android:foreground="?attr/selectableItemBackground"
+            app:layout_columnWeight="1">
 
             <ImageView
                 android:layout_width="match_parent"
@@ -202,7 +204,8 @@
                 android:src="@drawable/img_animal"
                 android:scaleType="centerCrop"
                 app:layout_rowWeight="1"
-                app:layout_columnWeight="1" />
+                app:layout_columnWeight="1"
+                tools:ignore="Suspicious0dp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -218,11 +221,11 @@
             android:id="@+id/category_food"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
             android:orientation="vertical"
             android:gravity="center_horizontal"
             android:clickable="true"
-            android:foreground="?attr/selectableItemBackground">
+            android:foreground="?attr/selectableItemBackground"
+            app:layout_columnWeight="1">
 
             <ImageView
                 android:layout_width="match_parent"
@@ -232,7 +235,8 @@
                 android:src="@drawable/img_food"
                 android:scaleType="centerCrop"
                 app:layout_rowWeight="1"
-                app:layout_columnWeight="1" />
+                app:layout_columnWeight="1"
+                tools:ignore="Suspicious0dp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -248,12 +252,12 @@
             android:id="@+id/category_etc"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_columnWeight="2"
-            android:layout_columnSpan="2"
             android:orientation="vertical"
             android:gravity="center_horizontal"
             android:clickable="true"
-            android:foreground="?attr/selectableItemBackground">
+            android:foreground="?attr/selectableItemBackground"
+            app:layout_columnSpan="2"
+            app:layout_columnWeight="2">
 
             <ImageView
                 android:layout_width="match_parent"
@@ -263,7 +267,8 @@
                 android:src="@drawable/img_etc"
                 android:scaleType="centerCrop"
                 app:layout_rowWeight="1"
-                app:layout_columnWeight="2" />
+                app:layout_columnWeight="2"
+                tools:ignore="Suspicious0dp" />
 
             <TextView
                 android:layout_width="wrap_content"
