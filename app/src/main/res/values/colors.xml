@@ -4,4 +4,5 @@
     <color name="white">#FFFFFFFF</color>
     <color name="background_light">#F0F0F0</color> <!-- 원하는 색상으로 -->
     <color name="main_color">#6CD28B</color>
+    <color name="blue_selected">#2196F3</color>
 </resources>

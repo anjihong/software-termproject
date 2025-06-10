@@ -1,8 +1,5 @@
 <resources>
     <string name="app_name">gitTest</string>
 
-    <color name="background_light">#D8FEE8</color>
-    <color name="main_color">#3EDB95</color>
 
-    <color name="blue_selected">#2196F3</color>
 </resources>
