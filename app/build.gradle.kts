@@ -1,8 +1,10 @@
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     id("kotlin-kapt")
     id("com.google.gms.google-services")
+
+    id("com.android.application")
+    kotlin("android")
+
 }
 
 android {
@@ -76,6 +78,11 @@ dependencies {
     // — TensorFlow Lite
     implementation("org.tensorflow:tensorflow-lite-task-vision:0.4.3")
     implementation("com.github.bumptech.glide:glide:4.16.0")
+
+    // AndroidX
+    implementation("androidx.core:core-ktx:1.10.1")
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("com.google.android.material:material:1.9.0")
 
     
 //
