@@ -137,12 +137,12 @@ class MainActivity : AppCompatActivity() {
             try {
                 val inputStream = contentResolver.openInputStream(uri)
                 inputStream?.let {
-                    val fileName = "${System.currentTimeMillis()}.jpg"
+                    val fileName = uri.lastPathSegment ?: "${System.currentTimeMillis()}.jpg"
                     val storageRef = Firebase.storage.reference.child("marked_for_deletion/$fileName")
                     storageRef.putStream(it).await()
 
-                    saveToFirestore(fileName, uri)
-                    Log.d("Firebase", "Upload complete: $fileName")
+                    // 문서 ID로 파일명 사용
+                    addPhotoToFirestore(uri, fileName)
                 }
             } catch (e: Exception) {
                 Log.e("Firebase", "Upload error", e)
@@ -150,15 +150,25 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun saveToFirestore(fileName: String, uri: Uri) {
+    private fun addPhotoToFirestore(uri: Uri, fileName: String) {
         val firestore = Firebase.firestore
-        val data = hashMapOf(
-            "fileName" to fileName,
+        val photo = hashMapOf(
             "uri" to uri.toString(),
-            "timestamp" to System.currentTimeMillis()
+            "timestamp" to System.currentTimeMillis(),
+            "marked" to true
         )
-        firestore.collection("deletion_queue").document(fileName).set(data)
+
+        firestore.collection("trashPhotos")
+            .document(fileName)
+            .set(photo)
+            .addOnSuccessListener {
+                Log.d("Firestore", "문서 저장 성공: $fileName")
+            }
+            .addOnFailureListener { e ->
+                Log.e("Firestore", "저장 실패", e)
+            }
     }
+
 
     private fun showDeletionPreview() {
         val intent = Intent(this, TrashPreviewActivity::class.java).apply {
