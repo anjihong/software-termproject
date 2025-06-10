@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity() {
                     when (direction) {
                         Direction.Left -> {
                             photosMarkedForDeletion.add(uri)
-                            uploadToFirebase(uri)
+                            markPhotoForDeletion(uri)
                         }
                         Direction.Right -> {
                             // 보존 - 아무 동작 안함
@@ -137,41 +137,31 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun uploadToFirebase(uri: Uri) {
+    private fun markPhotoForDeletion(uri: Uri) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val inputStream = contentResolver.openInputStream(uri)
-                inputStream?.let {
-                    val fileName = uri.lastPathSegment ?: "${System.currentTimeMillis()}.jpg"
-                    val storageRef = Firebase.storage.reference.child("marked_for_deletion/$fileName")
-                    storageRef.putStream(it).await()
+                val fileName = "IMG_${System.currentTimeMillis()}.jpg"
+                val firestore = Firebase.firestore
+                val photo = hashMapOf(
+                    "uri" to uri.toString(),
+                    "timestamp" to System.currentTimeMillis(),
+                    "marked" to true
+                )
 
-                    // 문서 ID로 파일명 사용
-                    addPhotoToFirestore(uri, fileName)
-                }
+                firestore.collection("trashPhotos")
+                    .document(fileName)
+                    .set(photo)
+                    .addOnSuccessListener {
+                        Log.d("Firestore", "삭제 대상 등록 성공: $fileName")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("Firestore", "삭제 대상 등록 실패", e)
+                    }
+
             } catch (e: Exception) {
-                Log.e("Firebase", "Upload error", e)
+                Log.e("Firestore", "Firestore 등록 중 오류", e)
             }
         }
-    }
-
-    private fun addPhotoToFirestore(uri: Uri, fileName: String) {
-        val firestore = Firebase.firestore
-        val photo = hashMapOf(
-            "uri" to uri.toString(),
-            "timestamp" to System.currentTimeMillis(),
-            "marked" to true
-        )
-
-        firestore.collection("trashPhotos")
-            .document(fileName)
-            .set(photo)
-            .addOnSuccessListener {
-                Log.d("Firestore", "문서 저장 성공: $fileName")
-            }
-            .addOnFailureListener { e ->
-                Log.e("Firestore", "저장 실패", e)
-            }
     }
 
 
