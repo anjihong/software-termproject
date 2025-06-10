@@ -15,8 +15,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 
@@ -34,10 +37,10 @@ class MainActivity : AppCompatActivity() {
 
         loadLatestImages()
 
-        val btnTrash: ImageButton = findViewById(R.id.btn_trash)
-        btnTrash.setOnClickListener {
-            showDeletionPreview()
-        }
+//        val btnTrash: ImageButton = findViewById(R.id.btn_trash)
+//        btnTrash.setOnClickListener {
+//            showDeletionPreview()
+//        }
 
         viewPager.setPageTransformer(ZoomOutPageTransformer())
         setupSwipeGesture()
@@ -116,10 +119,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showDeletionPreview() {
-        val intent = Intent(this, TrashPreviewActivity::class.java).apply {
-            putParcelableArrayListExtra("photo_uris", ArrayList(photosMarkedForDeletion))
-        }
-        startActivity(intent)
-    }
+//    private fun showDeletionPreview() {
+//        val intent = Intent(this, Trash::class.java).apply {
+//            putParcelableArrayListExtra("photo_uris", ArrayList(photosMarkedForDeletion))
+//        }
+//        startActivity(intent)
+//    }
 }
