@@ -28,16 +28,16 @@ class CategoryDeleteActivity : AppCompatActivity() {
             }
 
         // 3) 카테고리별 리스트 화면으로 이동
-        findViewById<View>(R.id.category_landscape)
-            .setOnClickListener { startCategoryList("풍경") }
-        findViewById<View>(R.id.category_person)
-            .setOnClickListener { startCategoryList("사람") }
-        findViewById<View>(R.id.category_animal)
-            .setOnClickListener { startCategoryList("동물") }
-        findViewById<View>(R.id.category_food)
-            .setOnClickListener { startCategoryList("음식") }
-        findViewById<View>(R.id.category_etc)
-            .setOnClickListener { startCategoryList("기타") }
+//        findViewById<View>(R.id.category_landscape)
+//            .setOnClickListener { startCategoryList("풍경") }
+//        findViewById<View>(R.id.category_person)
+//            .setOnClickListener { startCategoryList("사람") }
+//        findViewById<View>(R.id.category_animal)
+//            .setOnClickListener { startCategoryList("동물") }
+//        findViewById<View>(R.id.category_food)
+//            .setOnClickListener { startCategoryList("음식") }
+//        findViewById<View>(R.id.category_etc)
+//            .setOnClickListener { startCategoryList("기타") }
     }
 
     private fun startCategoryList(category: String) {
