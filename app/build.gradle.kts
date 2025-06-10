@@ -89,7 +89,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4")
 
 
-    implementation("com.yuyakaido.android:card-stack-view:2.3.1")
+    implementation ("com.github.yuyakaido:CardStackView:v2.3.4") // cardView
+
 
     // Glide core
     implementation("com.github.bumptech.glide:glide:4.16.0")

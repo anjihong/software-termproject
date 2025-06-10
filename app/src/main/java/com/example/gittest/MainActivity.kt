@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.view.View
 import android.widget.ImageButton
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -26,6 +27,7 @@ import kotlinx.coroutines.withContext
 import android.widget.Button
 import androidx.navigation.findNavController
 import com.google.firebase.firestore.ktx.firestore
+import com.yuyakaido.android.cardstackview.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -33,6 +35,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var photoAdapter: PhotoAdapter
     private val photoUris = mutableListOf<Uri>()
     private val photosMarkedForDeletion = mutableListOf<Uri>()
+    private lateinit var cardStackView: CardStackView
+    private lateinit var cardStackLayoutManager: CardStackLayoutManager
+    private lateinit var photoCardAdapter: PhotoCardAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,7 +51,37 @@ class MainActivity : AppCompatActivity() {
                 )
             }
 
-        viewPager = findViewById(R.id.photo_viewpager)
+        cardStackView = findViewById(R.id.card_stack_view)
+
+        cardStackLayoutManager = CardStackLayoutManager(this, object : CardStackListener {
+            override fun onCardSwiped(direction: Direction?) {
+                val position = cardStackLayoutManager.topPosition - 1
+                if (position in photoUris.indices) {
+                    val uri = photoUris[position]
+                    when (direction) {
+                        Direction.Left -> {
+                            photosMarkedForDeletion.add(uri)
+                            uploadToFirebase(uri)
+                        }
+                        Direction.Right -> {
+                            // 보존 - 아무 동작 안함
+                        }
+                        else -> {}
+                    }
+                }
+            }
+
+            override fun onCardDragging(direction: Direction?, ratio: Float) {}
+            override fun onCardRewound() {}
+            override fun onCardCanceled() {}
+            override fun onCardAppeared(view: View?, position: Int) {}
+            override fun onCardDisappeared(view: View?, position: Int) {}
+        })
+
+        cardStackView.layoutManager = cardStackLayoutManager
+        photoCardAdapter = PhotoCardAdapter(photoUris)
+        cardStackView.adapter = photoCardAdapter
+
 
         loadLatestImages()
 
@@ -55,8 +90,6 @@ class MainActivity : AppCompatActivity() {
             showDeletionPreview()
         }
 
-        viewPager.setPageTransformer(ZoomOutPageTransformer())
-        setupSwipeGesture()
     }
 
     private fun requestStoragePermissionIfNeeded() {
@@ -71,32 +104,6 @@ class MainActivity : AppCompatActivity() {
                 requestPermissions(arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE), 101)
             }
         }
-    }
-
-    private fun setupSwipeGesture() {
-        val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
-            0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
-        ) {
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ) = false
-
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val position = viewHolder.adapterPosition
-                val uri = photoUris[position]
-
-                if (direction == ItemTouchHelper.LEFT) {
-                    photosMarkedForDeletion.add(uri)
-                    uploadToFirebase(uri)
-                }
-                photoUris.removeAt(position)
-                photoAdapter.notifyItemRemoved(position)
-            }
-        })
-
-        itemTouchHelper.attachToRecyclerView(viewPager.getChildAt(0) as RecyclerView)
     }
 
     private fun loadLatestImages() {
@@ -122,15 +129,13 @@ class MainActivity : AppCompatActivity() {
                 }
                 uris
             }
-            Log.d("PhotoLoad", "Loaded ${images.size} images")
 
             photoUris.clear()
             photoUris.addAll(images)
-            photoAdapter = PhotoAdapter(photoUris)
-            viewPager.adapter = photoAdapter
+            photoCardAdapter.notifyDataSetChanged()
         }
-
     }
+
 
     private fun uploadToFirebase(uri: Uri) {
         lifecycleScope.launch(Dispatchers.IO) {

@@ -120,20 +120,15 @@
 
     </LinearLayout>
 
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/photo_viewpager"
-        android:layout_width="344dp"
-        android:layout_height="419dp"
-        android:clipToPadding="false"
-        android:orientation="horizontal"
-        android:paddingStart="60dp"
-        android:paddingEnd="60dp"
-        app:layout_constraintBottom_toTopOf="@id/photo_location"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.477"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/filter_buttons"
-        app:layout_constraintVertical_bias="0.421" />
+    <com.yuyakaido.android.cardstackview.CardStackView
+        android:id="@+id/card_stack_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@+id/filter_buttons"
+        app:layout_constraintBottom_toTopOf="@+id/photo_location"
+        />
+
 
 
     <TextView
@@ -160,7 +155,7 @@
         android:contentDescription="오른쪽 화살표"
         android:src="@drawable/ic_arrow_right"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/photo_viewpager" />
+        app:layout_constraintTop_toBottomOf="@id/card_stack_view" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -171,7 +166,7 @@
         android:textColor="@android:color/black"
         android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/photo_viewpager" />
+        app:layout_constraintTop_toBottomOf="@id/card_stack_view" />
 
     <ImageView
         android:layout_width="24dp"
@@ -181,7 +176,7 @@
         android:contentDescription="왼쪽 화살표"
         android:src="@drawable/ic_arrow_left"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/photo_viewpager" />
+        app:layout_constraintTop_toBottomOf="@id/card_stack_view" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -192,7 +187,7 @@
         android:textColor="@android:color/black"
         android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/photo_viewpager" />
+        app:layout_constraintTop_toBottomOf="@id/card_stack_view" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
