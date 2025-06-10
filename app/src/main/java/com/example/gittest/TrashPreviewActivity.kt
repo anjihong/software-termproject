@@ -99,8 +99,12 @@ class TrashPreviewActivity : AppCompatActivity() {
             for (uri in photoUris) {
                 val fileName = uri.lastPathSegment ?: continue
                 try {
+                    // 1. Firebase Storage 삭제
                     storage.reference.child("marked_for_deletion/$fileName").delete().await()
-                    firestore.collection("deletion_queue").document(fileName).delete().await()
+
+                    // 2. Firestore 문서 삭제
+                    firestore.collection("trashPhotos").document(fileName).delete().await()
+
                     Log.d("Firebase", "Deleted $fileName from Firebase")
                 } catch (e: Exception) {
                     Log.e("Firebase", "Failed to delete $fileName", e)
