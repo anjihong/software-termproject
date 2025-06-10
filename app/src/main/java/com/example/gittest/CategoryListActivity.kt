@@ -12,6 +12,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import android.content.ContentUris
+import android.provider.MediaStore
+
 
 class CategoryListActivity : AppCompatActivity() {
     private lateinit var recycler: RecyclerView
@@ -45,6 +48,12 @@ class CategoryListActivity : AppCompatActivity() {
                 .whereEqualTo("category", cat)
                 .get()
                 .await()
-            snap.documents.mapNotNull { Uri.parse(it.id) }
+            snap.documents.mapNotNull { doc ->
+                val id = doc.id.toLongOrNull() ?: return@mapNotNull null
+                ContentUris.withAppendedId(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    id
+                )
+            }
         }
 }

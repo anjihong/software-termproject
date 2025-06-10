@@ -75,7 +75,9 @@ class CategoryDeleteActivity : AppCompatActivity() {
 
             uris.forEach { uri ->
                 // 2) 이미 분류된 적 있으면 건너뛰기
-                val docRef = firestore.collection("photoLabels").document(uri.toString())
+                val photoId = uri.lastPathSegment ?: uri.toString().hashCode().toString()
+                val docRef = firestore.collection("photoLabels")
+                    .document(photoId)
                 if (docRef.get().await().exists()) return@forEach
 
                 // 3) Base64 인코딩
