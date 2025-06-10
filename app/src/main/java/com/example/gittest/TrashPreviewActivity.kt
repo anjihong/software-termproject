@@ -1,9 +1,12 @@
 package com.example.gittest
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.widget.Button
 import android.widget.ImageButton
@@ -18,11 +21,13 @@ import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 class TrashPreviewActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: PhotoAdapter
+    private val trashPhotoUris = mutableListOf<Uri>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +59,8 @@ class TrashPreviewActivity : AppCompatActivity() {
         adapter = PhotoAdapter(photoUris)
         recyclerView.adapter = adapter
 
+        fetchTrashPhotos()
+
         // 5) 휴지통 비우기 버튼 누르면 토스트 (실제 삭제 로직은 여기에)
         findViewById<Button>(R.id.btn_empty_trash).setOnClickListener {
             deletePhotosFromGallery(photoUris)
@@ -68,26 +75,55 @@ class TrashPreviewActivity : AppCompatActivity() {
     }
 
 
-    fun Context.deletePhotosFromGallery(photoUris: List<Uri>): Int {
-        var deletedCount = 0
-
-        for (uri in photoUris) {
+    private fun fetchTrashPhotos() {
+        val firestore = Firebase.firestore
+        lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val rows = contentResolver.delete(uri, null, null)
-                if (rows > 0) {
-                    deletedCount++
-                    Log.d("PhotoDelete", "사진 삭제 성공: $uri")
-                } else {
-                    Log.w("PhotoDelete", "사진 삭제 실패 또는 없음: $uri")
+                val snapshot = firestore.collection("trashPhotos")
+                    .whereEqualTo("marked", true)
+                    .get()
+                    .await()
+
+                val fetchedUris = snapshot.documents.mapNotNull {
+                    val uriStr = it.getString("uri")
+                    uriStr?.let { uri -> Uri.parse(uri) }
                 }
-            } catch (e: SecurityException) {
-                Log.e("PhotoDelete", "보안 예외 발생: $uri", e)
+
+                trashPhotoUris.clear()
+                trashPhotoUris.addAll(fetchedUris)
+
+                withContext(Dispatchers.Main) {
+                    adapter.notifyDataSetChanged()
+                }
+                Log.d("Firestore", "불러온 삭제 후보 수: ${trashPhotoUris.size}")
             } catch (e: Exception) {
-                Log.e("PhotoDelete", "예기치 못한 오류: $uri", e)
+                Log.e("Firestore", "삭제 후보 불러오기 실패", e)
             }
         }
+    }
 
-        return deletedCount
+    fun Context.deletePhotosFromGallery(photoUris: List<Uri>) {
+        for (uri in photoUris) {
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    val intentSender = MediaStore.createDeleteRequest(contentResolver, listOf(uri)).intentSender
+                    (this as? Activity)?.startIntentSenderForResult(
+                        intentSender,
+                        999, null, 0, 0, 0, null
+                    )
+                    Log.d("PhotoDelete", "삭제 요청 보냄 (Android 11+): $uri")
+                } else {
+                    val rows = contentResolver.delete(uri, null, null)
+                    if (rows > 0) {
+                        Log.d("PhotoDelete", "삭제 완료: $uri")
+                    } else {
+                        Log.w("PhotoDelete", "삭제 실패 또는 항목 없음: $uri")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("PhotoDelete", "사진 삭제 중 오류: $uri", e)
+            }
+        }
     }
 
 
