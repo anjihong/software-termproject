@@ -21,6 +21,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".CategoryDeleteActivity"/>
+        <activity android:name=".CategoryListActivity"/>
     </application>
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
