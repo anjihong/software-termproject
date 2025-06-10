@@ -1,14 +1,23 @@
 package com.example.gittest
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class TrashPreviewActivity : AppCompatActivity() {
 
@@ -47,12 +56,56 @@ class TrashPreviewActivity : AppCompatActivity() {
 
         // 5) 휴지통 비우기 버튼 누르면 토스트 (실제 삭제 로직은 여기에)
         findViewById<Button>(R.id.btn_empty_trash).setOnClickListener {
+            deletePhotosFromGallery(photoUris)
+            deleteFromFirebase(photoUris)
             Toast.makeText(
                 this,
                 "사진 ${photoUris.size}개 일괄 삭제 처리!",
                 Toast.LENGTH_SHORT
             ).show()
             // TODO: MediaStore 삭제 등 실제 로직 추가
+        }
+    }
+
+
+    fun Context.deletePhotosFromGallery(photoUris: List<Uri>): Int {
+        var deletedCount = 0
+
+        for (uri in photoUris) {
+            try {
+                val rows = contentResolver.delete(uri, null, null)
+                if (rows > 0) {
+                    deletedCount++
+                    Log.d("PhotoDelete", "사진 삭제 성공: $uri")
+                } else {
+                    Log.w("PhotoDelete", "사진 삭제 실패 또는 없음: $uri")
+                }
+            } catch (e: SecurityException) {
+                Log.e("PhotoDelete", "보안 예외 발생: $uri", e)
+            } catch (e: Exception) {
+                Log.e("PhotoDelete", "예기치 못한 오류: $uri", e)
+            }
+        }
+
+        return deletedCount
+    }
+
+
+    private fun deleteFromFirebase(photoUris: List<Uri>) {
+        val firestore = Firebase.firestore
+        val storage = Firebase.storage
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            for (uri in photoUris) {
+                val fileName = uri.lastPathSegment ?: continue
+                try {
+                    storage.reference.child("marked_for_deletion/$fileName").delete().await()
+                    firestore.collection("deletion_queue").document(fileName).delete().await()
+                    Log.d("Firebase", "Deleted $fileName from Firebase")
+                } catch (e: Exception) {
+                    Log.e("Firebase", "Failed to delete $fileName", e)
+                }
+            }
         }
     }
 }

@@ -25,6 +25,7 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import android.widget.Button
 import androidx.navigation.findNavController
+import com.google.firebase.firestore.ktx.firestore
 
 
 class MainActivity : AppCompatActivity() {
@@ -137,14 +138,26 @@ class MainActivity : AppCompatActivity() {
                 val inputStream = contentResolver.openInputStream(uri)
                 inputStream?.let {
                     val fileName = "${System.currentTimeMillis()}.jpg"
-                    val ref = Firebase.storage.reference.child("marked_for_deletion/$fileName")
-                    ref.putStream(it).await()
+                    val storageRef = Firebase.storage.reference.child("marked_for_deletion/$fileName")
+                    storageRef.putStream(it).await()
+
+                    saveToFirestore(fileName, uri)
                     Log.d("Firebase", "Upload complete: $fileName")
                 }
             } catch (e: Exception) {
                 Log.e("Firebase", "Upload error", e)
             }
         }
+    }
+
+    private fun saveToFirestore(fileName: String, uri: Uri) {
+        val firestore = Firebase.firestore
+        val data = hashMapOf(
+            "fileName" to fileName,
+            "uri" to uri.toString(),
+            "timestamp" to System.currentTimeMillis()
+        )
+        firestore.collection("deletion_queue").document(fileName).set(data)
     }
 
     private fun showDeletionPreview() {
