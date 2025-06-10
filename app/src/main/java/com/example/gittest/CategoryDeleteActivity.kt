@@ -45,7 +45,15 @@ class CategoryDeleteActivity : AppCompatActivity() {
                 )
             }
         // 3) 화면 로드되자마자 분류 자동 시작
-        classifyAllPhotos()
+        lifecycleScope.launch(Dispatchers.IO) {
+            classifyAllPhotos()
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    this@CategoryDeleteActivity,
+                    "사진 분류 완료!",
+                    Toast.LENGTH_SHORT).show()
+            }
+        }
 
         // 3) 카테고리별 리스트 화면으로 이동
         findViewById<View>(R.id.category_landscape)
@@ -68,7 +76,7 @@ class CategoryDeleteActivity : AppCompatActivity() {
     }
 
     /** 사진 전체를 분류해서 Firestore에 저장 */
-    private fun classifyAllPhotos() {
+    private suspend fun classifyAllPhotos() {
         lifecycleScope.launch {
             Log.d("CategoryDelete", "classifyAllPhotos() 시작")
             val firestore = Firebase.firestore
@@ -114,9 +122,7 @@ class CategoryDeleteActivity : AppCompatActivity() {
                     "timestamp" to System.currentTimeMillis()
                 )).await()
             }
-            Log.d("CategoryDelete", "분류 루프 종료, 문서 저장 시도")
-            Toast.makeText(this@CategoryDeleteActivity, "사진 분류 완료!", Toast.LENGTH_SHORT).show()
-            // TODO: 분류된 결과를 UI (GridLayout 등)에 반영하는 코드 추가
+
         }
     }
 
