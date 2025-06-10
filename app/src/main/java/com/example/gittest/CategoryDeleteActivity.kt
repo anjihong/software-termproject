@@ -9,6 +9,7 @@ import android.content.ContentUris
 import android.net.Uri
 import android.provider.MediaStore
 import android.util.Base64
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.example.gittest.network.AnnotateRequest
@@ -69,11 +70,14 @@ class CategoryDeleteActivity : AppCompatActivity() {
     /** 사진 전체를 분류해서 Firestore에 저장 */
     private fun classifyAllPhotos() {
         lifecycleScope.launch {
+            Log.d("CategoryDelete", "classifyAllPhotos() 시작")
             val firestore = Firebase.firestore
             // 1) MediaStore에서 URI 목록 로드
             val uris = loadAllPhotoUris()
+            Log.d("CategoryDelete", "URI 갯수: ${uris.size}")
 
             uris.forEach { uri ->
+                Log.d("CategoryDelete", "분류 대상 URI: $uri")
                 // 2) 이미 분류된 적 있으면 건너뛰기
                 val photoId = uri.lastPathSegment ?: uri.toString().hashCode().toString()
                 val docRef = firestore.collection("photoLabels")
@@ -110,7 +114,7 @@ class CategoryDeleteActivity : AppCompatActivity() {
                     "timestamp" to System.currentTimeMillis()
                 )).await()
             }
-
+            Log.d("CategoryDelete", "분류 루프 종료, 문서 저장 시도")
             Toast.makeText(this@CategoryDeleteActivity, "사진 분류 완료!", Toast.LENGTH_SHORT).show()
             // TODO: 분류된 결과를 UI (GridLayout 등)에 반영하는 코드 추가
         }
