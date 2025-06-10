@@ -23,6 +23,7 @@
         </activity>
         <activity android:name=".CategoryDeleteActivity"/>
         <activity android:name=".CategoryListActivity"/>
+        <activity android:name=".TrashPreviewActivity" />
     </application>
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 

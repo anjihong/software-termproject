@@ -40,10 +40,10 @@ class MainActivity : AppCompatActivity() {
 
         loadLatestImages()
 
-//        val btnTrash: ImageButton = findViewById(R.id.btn_trash)
-//        btnTrash.setOnClickListener {
-//            showDeletionPreview()
-//        }
+        val btnTrash: ImageButton = findViewById(R.id.btn_trash)
+        btnTrash.setOnClickListener {
+            showDeletionPreview()
+        }
 
         viewPager.setPageTransformer(ZoomOutPageTransformer())
         setupSwipeGesture()
@@ -138,10 +138,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-//    private fun showDeletionPreview() {
-//        val intent = Intent(this, Trash::class.java).apply {
-//            putParcelableArrayListExtra("photo_uris", ArrayList(photosMarkedForDeletion))
-//        }
-//        startActivity(intent)
-//    }
+    private fun showDeletionPreview() {
+        val intent = Intent(this, TrashPreviewActivity::class.java).apply {
+            putParcelableArrayListExtra("photo_uris", ArrayList(photosMarkedForDeletion))
+        }
+        startActivity(intent)
+    }
 }
