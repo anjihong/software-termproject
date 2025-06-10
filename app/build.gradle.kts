@@ -84,15 +84,12 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("com.google.android.material:material:1.9.0")
 
-    
-//
-//    kapt("com.github.bumptech.glide:compiler:4.16.0")
-//
+
 //// Firebase 코루틴 연동
-//    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4")
-//
-//// ViewPager2
-//    implementation("androidx.viewpager2:viewpager2:1.0.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4")
+
+
+    implementation("com.yuyakaido.android:card-stack-view:2.3.1")
 
     // Glide core
     implementation("com.github.bumptech.glide:glide:4.16.0")
