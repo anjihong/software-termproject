@@ -45,4 +45,33 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+
+    //추가한 것들
+    // — 코루틴
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
+    // — Jetpack Lifecycle
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.1")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.9.1")
+
+    // — Jetpack Navigation
+    implementation("androidx.navigation:navigation-fragment-ktx:2.9.0")
+    implementation("androidx.navigation:navigation-ui-ktx:2.9.0")
+
+    // — RecyclerView (현재 최신)
+    implementation("androidx.recyclerview:recyclerview:1.3.0")
+
+    // — Firebase (BOM 관리)
+    implementation(platform("com.google.firebase:firebase-bom:32.1.1"))
+    implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation("com.google.firebase:firebase-storage-ktx")
+
+    // — Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    // — TensorFlow Lite
+    implementation("org.tensorflow:tensorflow-lite-task-vision:0.4.3")
 }
+
