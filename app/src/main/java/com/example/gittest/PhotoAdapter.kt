@@ -8,7 +8,7 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 
-class PhotoAdapter(private val photos: List<Uri>) :
+class PhotoAdapter(private var photos: List<Uri>) :
     RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder>() {
 
     inner class PhotoViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -28,4 +28,11 @@ class PhotoAdapter(private val photos: List<Uri>) :
     }
 
     override fun getItemCount(): Int = photos.size
+
+
+    //adapter수정부분
+    fun updateData(newPhotos: List<Uri>) {
+        photos = newPhotos
+        notifyDataSetChanged()
+    }
 }
