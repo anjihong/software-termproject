@@ -55,6 +55,7 @@ class SimilarPhotoActivity : AppCompatActivity() {
             if (similarClusters.isNotEmpty()) {
                 viewPager.adapter =
                     SimilarPhotoPagerAdapter(this@SimilarPhotoActivity, similarClusters)
+                Log.d("EXIFTest","${similarClusters.size}장 찾았습니다.")
             } else {
                 Toast.makeText(
                     this@SimilarPhotoActivity,
