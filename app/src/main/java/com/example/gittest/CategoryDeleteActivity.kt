@@ -10,6 +10,7 @@ import android.net.Uri
 import android.provider.MediaStore
 import android.util.Base64
 import android.util.Log
+import android.widget.Button
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.example.gittest.network.AnnotateRequest
@@ -44,6 +45,12 @@ class CategoryDeleteActivity : AppCompatActivity() {
                         }
                 )
             }
+        findViewById<Button>(R.id.btn_ai_delete)
+            .setOnClickListener {
+                startActivity(
+                Intent(this, SimilarPhotoActivity::class.java)
+            ) }
+
         // 3) 화면 로드되자마자 분류 자동 시작
         lifecycleScope.launch(Dispatchers.IO) {
             classifyAllPhotos()
