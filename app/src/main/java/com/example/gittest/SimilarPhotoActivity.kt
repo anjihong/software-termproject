@@ -28,6 +28,9 @@ class SimilarPhotoActivity : AppCompatActivity() {
     private lateinit var viewPager: ViewPager2
     private lateinit var deleteButton: Button
 
+    private val uriToClusterMap = mutableMapOf<Uri, List<Uri>>()
+    private val photoUris = mutableListOf<Uri>()
+
     // 각 클러스터는 유사한 사진들의 리스트
     private var similarClusters: List<List<Uri>> = emptyList()
 
@@ -53,8 +56,7 @@ class SimilarPhotoActivity : AppCompatActivity() {
             similarClusters = findSimilarPhotos()
             Log.d("ClusterDebug","총 ${similarClusters.size}개의 유사 그룹 발견")
             if (similarClusters.isNotEmpty()) {
-                viewPager.adapter =
-                    SimilarPhotoPagerAdapter(this@SimilarPhotoActivity, similarClusters)
+                viewPager.adapter = SimilarPhotoPagerAdapter(this@SimilarPhotoActivity, photoUris)
             } else {
                 Toast.makeText(
                     this@SimilarPhotoActivity,
@@ -148,13 +150,20 @@ class SimilarPhotoActivity : AppCompatActivity() {
         // 유클리드 거리를 cosine 거리로 변경하거나, eps 값 조정
         val dbscan = SimilarityCluster(embeddings, eps = 5f, minPts = 2)
         val labels = dbscan.cluster()
-
         val clusters = mutableMapOf<Int, MutableList<Uri>>()
         for (i in labels.indices) {
             val label = labels[i]
             if (label != -1) clusters.getOrPut(label) { mutableListOf() }.add(uris[i])
         }
-        clusters.values.filter { it.size >= 2 }
+
+        val rawClusters = clusters.values.filter { it.size >= 2 }
+        for (cluster in rawClusters) {
+            for (uri in cluster) {
+                uriToClusterMap[uri] = cluster
+                photoUris.add(uri)
+            }
+        }
+        return@withContext rawClusters
     }
 
     private fun loadBitmap(uri: Uri): Bitmap? {
