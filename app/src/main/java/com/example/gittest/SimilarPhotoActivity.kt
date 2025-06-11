@@ -1,6 +1,7 @@
 package com.example.gittest
 
 import android.content.ContentUris
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -8,6 +9,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -30,6 +32,20 @@ class SimilarPhotoActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_same_delete)
+
+        findViewById<ImageButton>(R.id.btn_home)
+            .setOnClickListener { finish() }
+
+        // 2) 휴지통 버튼: TrashPreviewActivity 로 이동
+        findViewById<ImageButton>(R.id.btn_trash)
+            .setOnClickListener {
+                startActivity(
+                    Intent(this, TrashPreviewActivity::class.java)
+                        .apply {
+                            // 필요하다면 putParcelableArrayListExtra(...) 로 URI 리스트 전달
+                        }
+                )
+            }
 
         viewPager = findViewById(R.id.view_pager)
         deleteButton = findViewById(R.id.btn_delete_same_photo)

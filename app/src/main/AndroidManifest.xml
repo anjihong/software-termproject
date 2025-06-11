@@ -26,6 +26,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".SimilarPhotoActivity"/>
         <activity android:name=".CategoryDeleteActivity"/>
         <activity android:name=".CategoryListActivity"/>
         <activity android:name=".TrashPreviewActivity" />
