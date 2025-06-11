@@ -1,10 +1,12 @@
 package com.example.gittest
 
+import android.app.Activity
 import android.content.ContentUris
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
@@ -27,55 +29,94 @@ class SimilarPhotoActivity : AppCompatActivity() {
 
     // 각 클러스터는 유사한 사진들의 리스트
     private var similarClusters: List<List<Uri>> = emptyList()
-    private var currentClusterIndex: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_same_delete)
 
-        findViewById<ImageButton>(R.id.btn_home)
-            .setOnClickListener { finish() }
-
-        // 2) 휴지통 버튼: TrashPreviewActivity 로 이동
-        findViewById<ImageButton>(R.id.btn_trash)
-            .setOnClickListener {
-                startActivity(
-                    Intent(this, TrashPreviewActivity::class.java)
-                        .apply {
-                            // 필요하다면 putParcelableArrayListExtra(...) 로 URI 리스트 전달
-                        }
-                )
-            }
+        // 홈 버튼
+        findViewById<ImageButton>(R.id.btn_home).setOnClickListener {
+            finish()
+        }
+        // 쓰레기통 버튼
+        findViewById<ImageButton>(R.id.btn_trash).setOnClickListener {
+            startActivity(Intent(this, TrashPreviewActivity::class.java))
+        }
 
         viewPager = findViewById(R.id.view_pager)
         deleteButton = findViewById(R.id.btn_delete_same_photo)
 
+        // 모델 초기화
         TFLiteHelper.initialize(this)
 
+        // 사진 클러스터 찾기
         lifecycleScope.launch {
             similarClusters = findSimilarPhotos()
             if (similarClusters.isNotEmpty()) {
-                viewPager.adapter = SimilarPhotoPagerAdapter(this@SimilarPhotoActivity, similarClusters)
+                viewPager.adapter =
+                    SimilarPhotoPagerAdapter(this@SimilarPhotoActivity, similarClusters)
             } else {
-                Toast.makeText(this@SimilarPhotoActivity, "동일한 사진을 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@SimilarPhotoActivity,
+                    "동일한 사진을 찾을 수 없습니다.",
+                    Toast.LENGTH_SHORT
+                ).show()
                 deleteButton.isEnabled = false
             }
         }
 
+        // “한 장만 남기고 지우기” 클릭
         deleteButton.setOnClickListener {
-            if (similarClusters.isNotEmpty()) {
-                val currentCluster = similarClusters[viewPager.currentItem]
-                if (currentCluster.size > 1) {
-                    for (i in 1 until currentCluster.size) {
-                        contentResolver.delete(currentCluster[i], null, null)
-                    }
-                    Toast.makeText(this, "${currentCluster.size - 1}장 삭제 완료", Toast.LENGTH_SHORT).show()
-                    finish()
-                }
-            }
+            // 현재 페이지(클러스터)에서 첫 사진 제외한 나머지를 삭제 대상으로
+            val toDelete = similarClusters
+                .getOrNull(viewPager.currentItem)
+                ?.drop(1)
+                .orEmpty()
+            deletePhotosFromGallery(toDelete)
         }
     }
 
+    // SAF + direct delete 통합 함수
+    private fun deletePhotosFromGallery(photoUris: List<Uri>) {
+        if (photoUris.isEmpty()) return
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // Android 11 이상: SAF delete request
+            val intentSender =
+                MediaStore.createDeleteRequest(contentResolver, photoUris).intentSender
+            startIntentSenderForResult(
+                intentSender,
+                REQUEST_DELETE,
+                null, 0, 0, 0, null
+            )
+        } else {
+            // Android 10 이하: 직접 삭제
+            for (uri in photoUris) {
+                contentResolver.delete(uri, null, null)
+            }
+            Toast.makeText(this, "${photoUris.size}장 삭제 완료", Toast.LENGTH_SHORT).show()
+            finish()
+        }
+    }
+
+    // SAF 결과 처리
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_DELETE) {
+            if (resultCode == Activity.RESULT_OK) {
+                Toast.makeText(this, "삭제 완료", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "삭제 실패 또는 취소됨", Toast.LENGTH_SHORT).show()
+            }
+            finish()
+        }
+    }
+
+    companion object {
+        private const val REQUEST_DELETE = 1001
+    }
+
+    // 기존 findSimilarPhotos()와 loadBitmap()는 그대로 사용
     private suspend fun findSimilarPhotos(): List<List<Uri>> = withContext(Dispatchers.Default) {
         val projection = arrayOf(MediaStore.Images.Media._ID)
         val uris = mutableListOf<Uri>()
@@ -87,12 +128,13 @@ class SimilarPhotoActivity : AppCompatActivity() {
         )
 
         cursor?.use {
-            val idColumn = it.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
+            val idCol = it.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
             while (it.moveToNext()) {
-                val id = it.getLong(idColumn)
-                val uri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
-                val bitmap = loadBitmap(uri)
-                if (bitmap != null) {
+                val id = it.getLong(idCol)
+                val uri = ContentUris.withAppendedId(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id
+                )
+                loadBitmap(uri)?.let { bitmap ->
                     uris.add(uri)
                     embeddings.add(TFLiteHelper.getEmbedding(bitmap))
                 }
@@ -105,12 +147,9 @@ class SimilarPhotoActivity : AppCompatActivity() {
         val clusters = mutableMapOf<Int, MutableList<Uri>>()
         for (i in labels.indices) {
             val label = labels[i]
-            if (label != -1) {
-                clusters.getOrPut(label) { mutableListOf() }.add(uris[i])
-            }
+            if (label != -1) clusters.getOrPut(label) { mutableListOf() }.add(uris[i])
         }
-
-        return@withContext clusters.values.filter { it.size >= 2 }
+        clusters.values.filter { it.size >= 2 }
     }
 
     private fun loadBitmap(uri: Uri): Bitmap? {
