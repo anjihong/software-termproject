@@ -8,11 +8,10 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.viewpager2.widget.ViewPager2
 import com.example.gittest.ml.SimilarityCluster
 import com.example.gittest.ml.TFLiteHelper
 import kotlinx.coroutines.Dispatchers
@@ -21,42 +20,42 @@ import kotlinx.coroutines.withContext
 
 class SimilarPhotoActivity : AppCompatActivity() {
 
-    private lateinit var imageView: ImageView
-    private lateinit var resultText: TextView
+    private lateinit var viewPager: ViewPager2
     private lateinit var deleteButton: Button
 
-    private var clusterUris: List<Uri> = emptyList()
+    // 각 클러스터는 유사한 사진들의 리스트
+    private var similarClusters: List<List<Uri>> = emptyList()
+    private var currentClusterIndex: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_similar_photo)
+        setContentView(R.layout.activity_same_delete)
 
-        imageView = findViewById(R.id.imageView)
-        resultText = findViewById(R.id.result_text)
-        deleteButton = findViewById(R.id.delete_button)
+        viewPager = findViewById(R.id.view_pager)
+        deleteButton = findViewById(R.id.btn_delete_same_photo)
 
         TFLiteHelper.initialize(this)
 
         lifecycleScope.launch {
-            val clustered = findSimilarPhotos()
-            if (clustered.isNotEmpty()) {
-                clusterUris = clustered.first()
-                val bitmap = loadBitmap(clusterUris[0])
-                imageView.setImageBitmap(bitmap)
-                resultText.text = "동일한 사진을 ${clusterUris.size}장 찾았습니다."
+            similarClusters = findSimilarPhotos()
+            if (similarClusters.isNotEmpty()) {
+                viewPager.adapter = SimilarPhotoPagerAdapter(this@SimilarPhotoActivity, similarClusters)
             } else {
-                resultText.text = "동일한 사진을 찾을 수 없습니다."
+                Toast.makeText(this@SimilarPhotoActivity, "동일한 사진을 찾을 수 없습니다.", Toast.LENGTH_SHORT).show()
                 deleteButton.isEnabled = false
             }
         }
 
         deleteButton.setOnClickListener {
-            if (clusterUris.size > 1) {
-                for (i in 1 until clusterUris.size) {
-                    contentResolver.delete(clusterUris[i], null, null)
+            if (similarClusters.isNotEmpty()) {
+                val currentCluster = similarClusters[viewPager.currentItem]
+                if (currentCluster.size > 1) {
+                    for (i in 1 until currentCluster.size) {
+                        contentResolver.delete(currentCluster[i], null, null)
+                    }
+                    Toast.makeText(this, "${currentCluster.size - 1}장 삭제 완료", Toast.LENGTH_SHORT).show()
+                    finish()
                 }
-                Toast.makeText(this, "${clusterUris.size - 1}장 삭제 완료", Toast.LENGTH_SHORT).show()
-                finish()
             }
         }
     }
