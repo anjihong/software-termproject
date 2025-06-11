@@ -69,41 +69,57 @@ class SimilarPhotoActivity : AppCompatActivity() {
 
         // “한 장만 남기고 지우기” 클릭 (삭제 전 확인 다이얼로그 추가)
         deleteButton.setOnClickListener {
-            val currentCluster = similarClusters.getOrNull(viewPager.currentItem).orEmpty()
+            val currentUri = photoUris.getOrNull(viewPager.currentItem)
+            val currentCluster = uriToClusterMap[currentUri].orEmpty()
+
             if (currentCluster.size <= 1) return@setOnClickListener
 
             AlertDialog.Builder(this)
                 .setTitle("삭제 확인")
                 .setMessage("이 그룹에는 ${currentCluster.size}장의 사진이 유사하다고 인식되었습니다. 대표 사진 1장을 제외한 ${currentCluster.size - 1}장을 삭제하시겠습니까?")
                 .setPositiveButton("삭제") { _, _ ->
-                    val toDelete = currentCluster.drop(1)
+                    val toDelete = currentCluster.filter { it != currentUri } // 대표 한 장 제외
                     deletePhotosFromGallery(toDelete)
                 }
                 .setNegativeButton("취소", null)
                 .show()
         }
+
     }
 
+    private fun moveToNextOrFinish() {
+        if (photoUris.isEmpty()) {
+            finish()
+        } else {
+            val nextItem = viewPager.currentItem + 1
+            if (nextItem < photoUris.size) {
+                viewPager.currentItem = nextItem
+            } else {
+                finish()
+            }
+        }
+    }
+
+
     // SAF + direct delete 통합 함수
-    private fun deletePhotosFromGallery(photoUris: List<Uri>) {
-        if (photoUris.isEmpty()) return
+    private fun deletePhotosFromGallery(photoUrisToDelete: List<Uri>) {
+        if (photoUrisToDelete.isEmpty()) return
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            // Android 11 이상: SAF delete request
             val intentSender =
-                MediaStore.createDeleteRequest(contentResolver, photoUris).intentSender
+                MediaStore.createDeleteRequest(contentResolver, photoUrisToDelete).intentSender
             startIntentSenderForResult(
                 intentSender,
                 REQUEST_DELETE,
                 null, 0, 0, 0, null
             )
         } else {
-            // Android 10 이하: 직접 삭제
-            for (uri in photoUris) {
+            for (uri in photoUrisToDelete) {
                 contentResolver.delete(uri, null, null)
+                photoUris.remove(uri) // 삭제된 URI는 리스트에서 제거
             }
-            Toast.makeText(this, "${photoUris.size}장 삭제 완료", Toast.LENGTH_SHORT).show()
-            finish()
+            viewPager.adapter?.notifyDataSetChanged()
+            moveToNextOrFinish()
         }
     }
 
@@ -112,13 +128,20 @@ class SimilarPhotoActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_DELETE) {
             if (resultCode == Activity.RESULT_OK) {
+                val currentUri = photoUris.getOrNull(viewPager.currentItem)
+                val currentCluster = uriToClusterMap[currentUri].orEmpty()
+                val toDelete = currentCluster.filter { it != currentUri }
+
+                photoUris.removeAll(toDelete)
+                viewPager.adapter?.notifyDataSetChanged()
                 Toast.makeText(this, "삭제 완료", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(this, "삭제 실패 또는 취소됨", Toast.LENGTH_SHORT).show()
             }
-            finish()
+            moveToNextOrFinish()
         }
     }
+
 
     companion object {
         private const val REQUEST_DELETE = 1001
@@ -148,7 +171,7 @@ class SimilarPhotoActivity : AppCompatActivity() {
         }
 
         // 유클리드 거리를 cosine 거리로 변경하거나, eps 값 조정
-        val dbscan = SimilarityCluster(embeddings, eps = 5f, minPts = 2)
+        val dbscan = SimilarityCluster(embeddings, eps = 0.3f, minPts = 2)
         val labels = dbscan.cluster()
         val clusters = mutableMapOf<Int, MutableList<Uri>>()
         for (i in labels.indices) {
