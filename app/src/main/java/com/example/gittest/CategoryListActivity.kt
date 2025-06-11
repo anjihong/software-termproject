@@ -4,45 +4,53 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.firestore.ktx.firestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import android.content.ContentUris
-import android.provider.MediaStore
-import com.yuyakaido.android.cardstackview.CardStackLayoutManager
-import com.yuyakaido.android.cardstackview.CardStackView
-
+import com.yuyakaido.android.cardstackview.*
 
 class CategoryListActivity : AppCompatActivity() {
-    private lateinit var photoAdapter: PhotoAdapter
-    private val photoUris = mutableListOf<Uri>()
-    private val photosMarkedForDeletion = mutableListOf<Uri>()
+
     private lateinit var cardStackView: CardStackView
     private lateinit var cardStackLayoutManager: CardStackLayoutManager
     private lateinit var photoCardAdapter: PhotoCardAdapter
+    private val photoUris = mutableListOf<Uri>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_category_list)
 
+        // 1. CardStackView 세팅
+        cardStackView = findViewById(R.id.card_stack_view)
+        cardStackLayoutManager = CardStackLayoutManager(this, object : CardStackListener {
+            override fun onCardSwiped(direction: Direction?) {
+                // Optional: 삭제 처리 로직
+            }
+            override fun onCardDragging(direction: Direction?, ratio: Float) {}
+            override fun onCardRewound() {}
+            override fun onCardCanceled() {}
+            override fun onCardAppeared(view: android.view.View?, position: Int) {}
+            override fun onCardDisappeared(view: android.view.View?, position: Int) {}
+        })
 
+        cardStackView.layoutManager = cardStackLayoutManager
+        photoCardAdapter = PhotoCardAdapter(photoUris)
+        cardStackView.adapter = photoCardAdapter
+
+        // 2. 분류 정보로 사진 불러오기
         val category = intent.getStringExtra("category") ?: return
 
-
-
-        // 백그라운드에서 Firestore 쿼리
         lifecycleScope.launch {
             val uris = loadUrisByCategory(category)
-            adapter.updateData(uris)
+            photoUris.clear()
+            photoUris.addAll(uris)
+            photoCardAdapter.notifyDataSetChanged()
         }
     }
 
-    // Firestore에서 category 필드가 일치하는 문서들의 ID(Uri)만 가져오기
     private suspend fun loadUrisByCategory(cat: String): List<Uri> =
         withContext(Dispatchers.IO) {
             val snap = Firebase.firestore
@@ -50,12 +58,9 @@ class CategoryListActivity : AppCompatActivity() {
                 .whereEqualTo("category", cat)
                 .get()
                 .await()
+
             snap.documents.mapNotNull { doc ->
-                val id = doc.id.toLongOrNull() ?: return@mapNotNull null
-                ContentUris.withAppendedId(
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    id
-                )
+                doc.getString("uri")?.let { Uri.parse(it) }
             }
         }
 }

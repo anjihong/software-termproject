@@ -37,7 +37,6 @@ import com.example.gittest.network.OpenWeatherClient
 
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var photoAdapter: PhotoAdapter
     private val photoUris = mutableListOf<Uri>()
     private val photosMarkedForDeletion = mutableListOf<Uri>()
     private lateinit var cardStackView: CardStackView
