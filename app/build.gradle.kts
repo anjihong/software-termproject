@@ -99,5 +99,8 @@ dependencies {
     kapt("com.github.bumptech.glide:compiler:4.16.0")
 
     implementation("androidx.gridlayout:gridlayout:1.0.0")
+
+    implementation("org.tensorflow:tensorflow-lite:2.13.0")
+    implementation("org.tensorflow:tensorflow-lite-support:0.4.3")
 }
 
