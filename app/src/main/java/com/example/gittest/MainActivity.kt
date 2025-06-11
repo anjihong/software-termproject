@@ -45,6 +45,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvLocation: TextView
     private lateinit var tvDatetime: TextView
     private lateinit var tvWeather: TextView
+    private var currentLat: Double? = null
+    private var currentLon: Double? = null
 
     private fun extractExif(uri: Uri): Triple<Double?, Double?, Long?> {
         val originalUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -121,6 +123,9 @@ class MainActivity : AppCompatActivity() {
                 // 2) EXIF에서 위치·시간 추출
                 val (lat, lon, ts) = extractExif(uri)
 
+                currentLat = lat  //  지도 열기 위해 저장
+                currentLon = lon  //  지도 열기 위해 저장
+
                 // 3) 날짜 표시
                 tvDatetime.text = ts?.let {
                     SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date(it))
@@ -141,7 +146,7 @@ class MainActivity : AppCompatActivity() {
 
                             Log.d("WeatherTest", "WeatherResponse for $lat,$lon → $resp")
                             val weatherMain = resp.weather.firstOrNull()?.main ?: "—"
-                            tvWeather.text = "Weather: $weatherMain, ${resp.main.temp}°C"
+                            tvWeather.text = "Weather: $weatherMain"
                         } catch (e: Exception) {
                             Log.e("WeatherTest", "Weather API error", e)
                             tvWeather.text = "Weather: N/A"
@@ -165,6 +170,25 @@ class MainActivity : AppCompatActivity() {
         val btnTrash: ImageButton = findViewById(R.id.btn_trash)
         btnTrash.setOnClickListener {
             showDeletionPreview()
+        }
+
+
+        val weatherBox = findViewById<View>(R.id.weather_box)
+        weatherBox.setOnClickListener {
+            if (currentLat != null && currentLon != null) {
+                val gmmIntentUri = Uri.parse("geo:$currentLat,$currentLon?q=$currentLat,$currentLon(사진 위치)")
+                val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+                mapIntent.setPackage("com.google.android.apps.maps") // 구글맵 우선 실행
+                if (mapIntent.resolveActivity(packageManager) != null) {
+                    startActivity(mapIntent)
+                } else {
+                    // 구글맵이 없으면 일반 지도 앱으로 fallback
+                    val fallbackIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+                    startActivity(fallbackIntent)
+                }
+            } else {
+                Log.d("MapLaunch", "위치 정보가 없음")
+            }
         }
 
     }
