@@ -83,6 +83,12 @@ class MainActivity : AppCompatActivity() {
                     Intent(this, CategoryDeleteActivity::class.java)
                 )
             }
+        findViewById<Button>(R.id.btn_ai_delete)
+            .setOnClickListener {
+                startActivity(
+                    Intent(this, SimilarPhotoActivity::class.java)
+                )
+            }
 
         cardStackView = findViewById(R.id.card_stack_view)
 
