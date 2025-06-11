@@ -10,11 +10,13 @@ import android.provider.MediaStore
 import android.util.Log
 import android.widget.Button
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
@@ -78,6 +80,24 @@ class TrashPreviewActivity : AppCompatActivity() {
                 trashPhotoList.addAll(fetched)
 
                 withContext(Dispatchers.Main) {
+                    recyclerView.adapter = object : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+                        override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+                            val view = layoutInflater.inflate(R.layout.item_photo, parent, false)
+                            return object : RecyclerView.ViewHolder(view) {
+                                val imageView: ImageView = view.findViewById(R.id.imageView)
+                            }
+                        }
+
+                        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+                            val uri = trashPhotoList[position].uri
+                            val imageView = holder.itemView.findViewById<ImageView>(R.id.imageView)
+                            Glide.with(this@TrashPreviewActivity)
+                                .load(uri)
+                                .into(imageView)
+                        }
+
+                        override fun getItemCount(): Int = trashPhotoList.size
+                    }
                 }
 
                 Log.d("Firestore", "불러온 삭제 후보 수: ${trashPhotoList.size}")
@@ -113,7 +133,6 @@ class TrashPreviewActivity : AppCompatActivity() {
 
     private fun deleteFromFirebase(photoList: List<TrashPhoto>) {
         val firestore = Firebase.firestore
-
         lifecycleScope.launch(Dispatchers.IO) {
             for (photo in photoList) {
                 try {
