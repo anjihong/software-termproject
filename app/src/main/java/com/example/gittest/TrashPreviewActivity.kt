@@ -25,7 +25,6 @@ import kotlinx.coroutines.withContext
 class TrashPreviewActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: PhotoAdapter
     private val trashPhotoList = mutableListOf<TrashPhoto>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,8 +44,6 @@ class TrashPreviewActivity : AppCompatActivity() {
 
         recyclerView = findViewById(R.id.rv_trash_images)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        adapter = PhotoAdapter(emptyList()) // 일단 빈 리스트로 초기화
-        recyclerView.adapter = adapter
 
         fetchTrashPhotos()
 
@@ -81,8 +78,6 @@ class TrashPreviewActivity : AppCompatActivity() {
                 trashPhotoList.addAll(fetched)
 
                 withContext(Dispatchers.Main) {
-                    adapter = PhotoAdapter(trashPhotoList.map { it.uri })
-                    recyclerView.adapter = adapter
                 }
 
                 Log.d("Firestore", "불러온 삭제 후보 수: ${trashPhotoList.size}")

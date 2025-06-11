@@ -113,13 +113,14 @@ class CategoryDeleteActivity : AppCompatActivity() {
                 val categories = listOf("Person", "Animal", "Landscape", "Food")
                 val matched = categories.firstOrNull { cat ->
                     labels.any { it.contains(cat, ignoreCase = true) }
-                }?:"기타" // 매칭된 게 없으면 기타
+                }?:"etc" // 매칭된 게 없으면 기타
 
                 // 5) Firestore에 저장
                 docRef.set(mapOf(
                     "category"  to matched, //분류 결과
                     "labels"    to labels,  //원본 라벨
-                    "timestamp" to System.currentTimeMillis()
+                    "timestamp" to System.currentTimeMillis(),
+                    "uri" to uri.toString()
                 )).await()
             }
 
