@@ -131,9 +131,12 @@ class MainActivity : AppCompatActivity() {
                             val resp = OpenWeatherClient.service.getCurrentWeather(
                                 lat, lon, "metric", OpenWeatherClient.API_KEY
                             )
+
+                            Log.d("WeatherTest", "WeatherResponse for $lat,$lon → $resp")
                             val weatherMain = resp.weather.firstOrNull()?.main ?: "—"
                             tvWeather.text = "Weather: $weatherMain, ${resp.main.temp}°C"
                         } catch (e: Exception) {
+                            Log.e("WeatherTest", "Weather API error", e)
                             tvWeather.text = "Weather: N/A"
                         }
                     }
