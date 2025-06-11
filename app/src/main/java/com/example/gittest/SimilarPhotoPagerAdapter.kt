@@ -6,10 +6,9 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 
-
 class SimilarPhotoPagerAdapter(
     private val context: Context,
-    private val clusters: List<List<Uri>>
+    private val photoUris: List<Uri>
 ) : RecyclerView.Adapter<SimilarPhotoPagerAdapter.PhotoViewHolder>() {
 
     inner class PhotoViewHolder(val imageView: ImageView) : RecyclerView.ViewHolder(imageView)
@@ -26,11 +25,8 @@ class SimilarPhotoPagerAdapter(
     }
 
     override fun onBindViewHolder(holder: PhotoViewHolder, position: Int) {
-        val uri = clusters[position].firstOrNull()
-        if (uri != null) {
-            holder.imageView.setImageURI(uri)
-        }
+        holder.imageView.setImageURI(photoUris[position])
     }
 
-    override fun getItemCount(): Int = clusters.size
+    override fun getItemCount(): Int = photoUris.size
 }
