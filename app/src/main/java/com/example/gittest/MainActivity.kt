@@ -31,7 +31,6 @@ import com.yuyakaido.android.cardstackview.*
 
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var viewPager: ViewPager2
     private lateinit var photoAdapter: PhotoAdapter
     private val photoUris = mutableListOf<Uri>()
     private val photosMarkedForDeletion = mutableListOf<Uri>()

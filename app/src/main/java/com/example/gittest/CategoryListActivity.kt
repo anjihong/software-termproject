@@ -14,20 +14,22 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import android.content.ContentUris
 import android.provider.MediaStore
+import com.yuyakaido.android.cardstackview.CardStackLayoutManager
+import com.yuyakaido.android.cardstackview.CardStackView
 
 
 class CategoryListActivity : AppCompatActivity() {
-    private lateinit var recycler: RecyclerView
-    private lateinit var adapter: PhotoAdapter
+    private lateinit var photoAdapter: PhotoAdapter
+    private val photoUris = mutableListOf<Uri>()
+    private val photosMarkedForDeletion = mutableListOf<Uri>()
+    private lateinit var cardStackView: CardStackView
+    private lateinit var cardStackLayoutManager: CardStackLayoutManager
+    private lateinit var photoCardAdapter: PhotoCardAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_category_list)
 
-        recycler = findViewById(R.id.recyclerView)
-        recycler.layoutManager = GridLayoutManager(this, 3)
-        adapter = PhotoAdapter(listOf())
-        recycler.adapter = adapter
 
         val category = intent.getStringExtra("category") ?: return
 
