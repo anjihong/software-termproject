@@ -16,7 +16,7 @@ object TFLiteHelper {
 
     fun getEmbedding(bitmap: Bitmap): FloatArray {
         val input = convertBitmapToInputArray(bitmap)
-        val output = Array(1) { FloatArray(1000) } // MobileNetV2는 보통 1000차원
+        val output = Array(1) { FloatArray(1001) } // MobileNetV2는 보통 1000차원
         interpreter.run(input, output)
         return output[0]
     }
