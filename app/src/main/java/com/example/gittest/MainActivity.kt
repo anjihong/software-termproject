@@ -47,8 +47,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvWeather: TextView
 
     private fun extractExif(uri: Uri): Triple<Double?, Double?, Long?> {
-        val input = contentResolver.openInputStream(uri) ?: return Triple(null,null,null)
-        val exif = androidx.exifinterface.media.ExifInterface(input)
+        val originalUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            MediaStore.setRequireOriginal(uri)
+        } else {
+            uri
+        }
+
+        val input = contentResolver.openInputStream(originalUri) ?: return Triple(null, null, null)
+        val exif = ExifInterface(input)
         input.close()
 
         // 날짜
@@ -60,8 +66,9 @@ class MainActivity : AppCompatActivity() {
 
         // GPS
         val latLong = exif.latLong
-        val lat = latLong?.get(0)
-        val lon = latLong?.get(1)
+        Log.d("EXIFTest", "latLong: ${latLong?.joinToString()}")
+        val lat = latLong?.getOrNull(0)
+        val lon = latLong?.getOrNull(1)
 
         return Triple(lat, lon, timestamp)
     }
@@ -172,6 +179,12 @@ class MainActivity : AppCompatActivity() {
             // Android 12 이하
             if (checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE), 101)
+            }
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (checkSelfPermission(android.Manifest.permission.ACCESS_MEDIA_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(android.Manifest.permission.ACCESS_MEDIA_LOCATION), 102)
             }
         }
     }
