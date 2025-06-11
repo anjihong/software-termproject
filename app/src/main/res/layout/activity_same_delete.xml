@@ -104,20 +104,18 @@
     </LinearLayout>
     <!-- 하단 텍스트 먼저 선언 -->
 
-    <!-- 카드 스택 뷰 (중앙 영역 차지) -->
 
-    <com.yuyakaido.android.cardstackview.CardStackView
-        android:id="@+id/card_stack_view"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="16dp"
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/view_pager"
+        android:layout_width="361dp"
+        android:layout_height="413dp"
+        android:layout_marginTop="30dp"
         android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toTopOf="@id/btn_delete_same_photo"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/filter_buttons"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="0.0" />
 
     <Button
         android:id="@+id/btn_delete_same_photo"
@@ -136,7 +134,8 @@
         android:textColor="@android:color/white"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.485"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/view_pager"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
