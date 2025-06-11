@@ -47,7 +47,7 @@ class SimilarPhotoActivity : AppCompatActivity() {
 
         // 모델 초기화
         TFLiteHelper.initialize(this)
-
+         //
         // 사진 클러스터 찾기
         lifecycleScope.launch {
             similarClusters = findSimilarPhotos()
