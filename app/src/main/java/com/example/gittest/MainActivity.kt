@@ -28,6 +28,12 @@ import android.widget.Button
 import androidx.navigation.findNavController
 import com.google.firebase.firestore.ktx.firestore
 import com.yuyakaido.android.cardstackview.*
+import android.widget.TextView
+import java.text.SimpleDateFormat
+import androidx.exifinterface.media.ExifInterface
+import java.util.Date
+import java.util.Locale
+import com.example.gittest.network.OpenWeatherClient
 
 
 class MainActivity : AppCompatActivity() {
@@ -37,10 +43,39 @@ class MainActivity : AppCompatActivity() {
     private lateinit var cardStackView: CardStackView
     private lateinit var cardStackLayoutManager: CardStackLayoutManager
     private lateinit var photoCardAdapter: PhotoCardAdapter
+    private lateinit var tvLocation: TextView
+    private lateinit var tvDatetime: TextView
+    private lateinit var tvWeather: TextView
+
+    private fun extractExif(uri: Uri): Triple<Double?, Double?, Long?> {
+        val input = contentResolver.openInputStream(uri) ?: return Triple(null,null,null)
+        val exif = androidx.exifinterface.media.ExifInterface(input)
+        input.close()
+
+        // 날짜
+        val dateStr = exif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL)
+        val timestamp = dateStr?.let {
+            SimpleDateFormat("yyyy:MM:dd HH:mm:ss", Locale.getDefault())
+                .parse(it)?.time
+        }
+
+        // GPS
+        val latLong = exif.latLong
+        val lat = latLong?.get(0)
+        val lon = latLong?.get(1)
+
+        return Triple(lat, lon, timestamp)
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        tvLocation = findViewById(R.id.tv_location)
+        tvDatetime = findViewById(R.id.tv_datetime)
+        tvWeather  = findViewById(R.id.tv_weather)
+
         requestStoragePermissionIfNeeded()
 
         findViewById<Button>(R.id.btn_category_delete)
@@ -73,7 +108,41 @@ class MainActivity : AppCompatActivity() {
             override fun onCardDragging(direction: Direction?, ratio: Float) {}
             override fun onCardRewound() {}
             override fun onCardCanceled() {}
-            override fun onCardAppeared(view: View?, position: Int) {}
+            override fun onCardAppeared(view: View?, position: Int) {
+                // 1) 현재 카드 URI
+                val uri = photoUris[position]
+
+                // 2) EXIF에서 위치·시간 추출
+                val (lat, lon, ts) = extractExif(uri)
+
+                // 3) 날짜 표시
+                tvDatetime.text = ts?.let {
+                    SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date(it))
+                } ?: "Date: —"
+
+                // 4) 위치 표시
+                tvLocation.text = if (lat != null && lon != null)
+                    "Location: ${"%.4f".format(lat)}, ${"%.4f".format(lon)}"
+                else "Location: —"
+
+                // 5) 날씨 API 호출
+                if (lat != null && lon != null) {
+                    lifecycleScope.launch {
+                        try {
+                            val resp = OpenWeatherClient.service.getCurrentWeather(
+                                lat, lon, "metric", OpenWeatherClient.API_KEY
+                            )
+                            val weatherMain = resp.weather.firstOrNull()?.main ?: "—"
+                            tvWeather.text = "Weather: $weatherMain, ${resp.main.temp}°C"
+                        } catch (e: Exception) {
+                            tvWeather.text = "Weather: N/A"
+                        }
+                    }
+                } else {
+                    tvWeather.text = "Weather: —"
+                }
+            }
+
             override fun onCardDisappeared(view: View?, position: Int) {}
         })
 
