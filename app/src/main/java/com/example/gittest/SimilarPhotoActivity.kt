@@ -13,6 +13,7 @@ import android.util.Log
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
@@ -35,9 +36,7 @@ class SimilarPhotoActivity : AppCompatActivity() {
         setContentView(R.layout.activity_same_delete)
 
         // 홈 버튼
-        findViewById<ImageButton>(R.id.btn_home).setOnClickListener {
-            finish()
-        }
+        findViewById<ImageButton>(R.id.btn_home).setOnClickListener { finish() }
         // 쓰레기통 버튼
         findViewById<ImageButton>(R.id.btn_trash).setOnClickListener {
             startActivity(Intent(this, TrashPreviewActivity::class.java))
@@ -52,28 +51,34 @@ class SimilarPhotoActivity : AppCompatActivity() {
         // 사진 클러스터 찾기
         lifecycleScope.launch {
             similarClusters = findSimilarPhotos()
+            Log.d("ClusterDebug","총 ${similarClusters.size}개의 유사 그룹 발견")
             if (similarClusters.isNotEmpty()) {
                 viewPager.adapter =
                     SimilarPhotoPagerAdapter(this@SimilarPhotoActivity, similarClusters)
-                Log.d("EXIFTest","${similarClusters.size}장 찾았습니다.")
             } else {
                 Toast.makeText(
                     this@SimilarPhotoActivity,
-                    "동일한 사진을 찾을 수 없습니다.",
+                    "유사한 사진 그룹을 찾을 수 없습니다.",
                     Toast.LENGTH_SHORT
                 ).show()
                 deleteButton.isEnabled = false
             }
         }
 
-        // “한 장만 남기고 지우기” 클릭
+        // “한 장만 남기고 지우기” 클릭 (삭제 전 확인 다이얼로그 추가)
         deleteButton.setOnClickListener {
-            // 현재 페이지(클러스터)에서 첫 사진 제외한 나머지를 삭제 대상으로
-            val toDelete = similarClusters
-                .getOrNull(viewPager.currentItem)
-                ?.drop(1)
-                .orEmpty()
-            deletePhotosFromGallery(toDelete)
+            val currentCluster = similarClusters.getOrNull(viewPager.currentItem).orEmpty()
+            if (currentCluster.size <= 1) return@setOnClickListener
+
+            AlertDialog.Builder(this)
+                .setTitle("삭제 확인")
+                .setMessage("이 그룹에는 ${currentCluster.size}장의 사진이 유사하다고 인식되었습니다. 대표 사진 1장을 제외한 ${currentCluster.size - 1}장을 삭제하시겠습니까?")
+                .setPositiveButton("삭제") { _, _ ->
+                    val toDelete = currentCluster.drop(1)
+                    deletePhotosFromGallery(toDelete)
+                }
+                .setNegativeButton("취소", null)
+                .show()
         }
     }
 
@@ -117,21 +122,19 @@ class SimilarPhotoActivity : AppCompatActivity() {
         private const val REQUEST_DELETE = 1001
     }
 
-    // 기존 findSimilarPhotos()와 loadBitmap()는 그대로 사용
+    // 기존 findSimilarPhotos()와 loadBitmap() 수정: eps 낮춰 오탐 감소
     private suspend fun findSimilarPhotos(): List<List<Uri>> = withContext(Dispatchers.Default) {
         val projection = arrayOf(MediaStore.Images.Media._ID)
         val uris = mutableListOf<Uri>()
         val embeddings = mutableListOf<FloatArray>()
 
-        val cursor = contentResolver.query(
+        contentResolver.query(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
             projection, null, null, "${MediaStore.Images.Media.DATE_ADDED} DESC"
-        )
-
-        cursor?.use {
-            val idCol = it.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
-            while (it.moveToNext()) {
-                val id = it.getLong(idCol)
+        )?.use { cursor ->
+            val idCol = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
+            while (cursor.moveToNext()) {
+                val id = cursor.getLong(idCol)
                 val uri = ContentUris.withAppendedId(
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id
                 )
@@ -142,7 +145,8 @@ class SimilarPhotoActivity : AppCompatActivity() {
             }
         }
 
-        val dbscan = SimilarityCluster(embeddings, eps = 10f, minPts = 2)
+        // 유클리드 거리를 cosine 거리로 변경하거나, eps 값 조정
+        val dbscan = SimilarityCluster(embeddings, eps = 5f, minPts = 2)
         val labels = dbscan.cluster()
 
         val clusters = mutableMapOf<Int, MutableList<Uri>>()

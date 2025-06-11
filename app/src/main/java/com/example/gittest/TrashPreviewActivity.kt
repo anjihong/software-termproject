@@ -107,27 +107,29 @@ class TrashPreviewActivity : AppCompatActivity() {
         }
     }
 
+    companion object {
+        private const val REQUEST_DELETE = 1001
+    }
+
     fun Context.deletePhotosFromGallery(photoUris: List<Uri>) {
-        for (uri in photoUris) {
-            try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    val intentSender = MediaStore.createDeleteRequest(contentResolver, listOf(uri)).intentSender
-                    (this as? Activity)?.startIntentSenderForResult(
-                        intentSender,
-                        999, null, 0, 0, 0, null
-                    )
-                    Log.d("PhotoDelete", "삭제 요청 보냄 (Android 11+): $uri")
-                } else {
-                    val rows = contentResolver.delete(uri, null, null)
-                    if (rows > 0) {
-                        Log.d("PhotoDelete", "삭제 완료: $uri")
-                    } else {
-                        Log.w("PhotoDelete", "삭제 실패 또는 항목 없음: $uri")
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e("PhotoDelete", "사진 삭제 중 오류: $uri", e)
+        if (photoUris.isEmpty()) return
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // Android 11 이상: SAF delete request
+            val intentSender =
+                MediaStore.createDeleteRequest(contentResolver, photoUris).intentSender
+            startIntentSenderForResult(
+                intentSender,
+                REQUEST_DELETE,
+                null, 0, 0, 0, null
+            )
+        } else {
+            // Android 10 이하: 직접 삭제
+            for (uri in photoUris) {
+                contentResolver.delete(uri, null, null)
             }
+            Toast.makeText(this, "${photoUris.size}장 삭제 완료", Toast.LENGTH_SHORT).show()
+            finish()
         }
     }
 
