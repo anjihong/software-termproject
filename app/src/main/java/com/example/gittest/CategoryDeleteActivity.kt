@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import android.content.ContentUris
+import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
 import android.util.Base64
@@ -64,13 +65,13 @@ class CategoryDeleteActivity : AppCompatActivity() {
 
         // 3) 카테고리별 리스트 화면으로 이동
         findViewById<View>(R.id.category_landscape)
-            .setOnClickListener { startCategoryList("Landscape") }
+            .setOnClickListener { startCategoryList("landscape") }
         findViewById<View>(R.id.category_person)
-            .setOnClickListener { startCategoryList("Person") }
+            .setOnClickListener { startCategoryList("person") }
         findViewById<View>(R.id.category_animal)
-            .setOnClickListener { startCategoryList("Animal") }
+            .setOnClickListener { startCategoryList("animal") }
         findViewById<View>(R.id.category_food)
-            .setOnClickListener { startCategoryList("Food") }
+            .setOnClickListener { startCategoryList("food") }
         findViewById<View>(R.id.category_etc)
             .setOnClickListener { startCategoryList("etc") }
     }
@@ -84,55 +85,70 @@ class CategoryDeleteActivity : AppCompatActivity() {
 
     /** 사진 전체를 분류해서 Firestore에 저장 */
     private suspend fun classifyAllPhotos() {
-        lifecycleScope.launch {
-            Log.d("CategoryDelete", "classifyAllPhotos() 시작")
-            val firestore = Firebase.firestore
-            // 1) MediaStore에서 URI 목록 로드
-            val uris = loadAllPhotoUris()
-            Log.d("CategoryDelete", "URI 갯수: ${uris.size}")
+        val mapping = loadCategoryMapping(this@CategoryDeleteActivity)
 
-            uris.forEach { uri ->
-                Log.d("CategoryDelete", "분류 대상 URI: $uri")
-                // 2) 이미 분류된 적 있으면 건너뛰기
-                val photoId = uri.lastPathSegment ?: uri.toString().hashCode().toString()
-                val docRef = firestore.collection("photoLabels")
-                    .document(photoId)
-                if (docRef.get().await().exists()) return@forEach
+        val firestore = Firebase.firestore
+        val uris = loadAllPhotoUris()
+        Log.d("CategoryDelete", "URI 갯수: ${uris.size}")
 
-                // 3) Base64 인코딩
-                val b64 = withContext(Dispatchers.IO) {
-                    contentResolver.openInputStream(uri)!!.use { it.readBytes() }
-                }.let { Base64.encodeToString(it, Base64.NO_WRAP) }
+        for (uri in uris) {
+            val photoId = uri.lastPathSegment ?: uri.toString().hashCode().toString()
+            val docRef = firestore.collection("photoLabels").document(photoId)
+            if (docRef.get().await().exists()) continue
 
-                // 4) Vision API 호출
-                val request = AnnotateRequest(
-                    listOf(AnnotateSingle(ImageContent(b64), listOf(Feature())))
-                )
-                val labels = VisionApiClient.service
-                    .annotate(VisionApiClient.API_KEY, request)
-                    .responses
-                    .firstOrNull()
-                    ?.labelAnnotations
-                    ?.map { it.description }
-                    ?: emptyList()
+            val b64 = withContext(Dispatchers.IO) {
+                contentResolver.openInputStream(uri)!!.use { it.readBytes() }
+            }.let { Base64.encodeToString(it, Base64.NO_WRAP) }
 
-                // → 여기에 후처리: 내가 원하는 5개 카테고리에 맞춰 매핑
-                val categories = listOf("Person", "Animal", "Landscape", "Food")
-                val matched = categories.firstOrNull { cat ->
-                    labels.any { it.contains(cat, ignoreCase = true) }
-                }?:"etc" // 매칭된 게 없으면 기타
+            val request = AnnotateRequest(
+                listOf(AnnotateSingle(ImageContent(b64), listOf(Feature())))
+            )
 
-                // 5) Firestore에 저장
-                docRef.set(mapOf(
-                    "category"  to matched, //분류 결과
-                    "labels"    to labels,  //원본 라벨
-                    "timestamp" to System.currentTimeMillis(),
-                    "uri" to uri.toString()
-                )).await()
-            }
+            val labels = VisionApiClient.service
+                .annotate(VisionApiClient.API_KEY, request)
+                .responses
+                .firstOrNull()
+                ?.labelAnnotations
+                ?.map { it.description }
+                ?: emptyList()
 
+            val matched = getCategoryFromVisionTags(labels, mapping)
+
+            docRef.set(mapOf(
+                "category"  to matched,
+                "labels"    to labels,
+                "timestamp" to System.currentTimeMillis(),
+                "uri"       to uri.toString()
+            )).await()
+
+            Log.d("CategoryDelete", "분류 저장 완료: $matched - $uri")
         }
     }
+
+
+    private suspend fun loadCategoryMapping(context: Context): Map<String, List<String>> {
+        return withContext(Dispatchers.IO) {
+            val json = context.assets.open("label_to_category.json").bufferedReader().use { it.readText() }
+            val type = object : com.google.gson.reflect.TypeToken<Map<String, List<String>>>() {}.type
+            com.google.gson.Gson().fromJson(json, type)
+        }
+    }
+
+    private fun getCategoryFromVisionTags(
+        visionTags: List<String>,
+        mapping: Map<String, List<String>>
+    ): String {
+        for (tag in visionTags) {
+            val normalized = tag.lowercase()
+            for ((category, keywords) in mapping) {
+                if (keywords.any { it.lowercase() == normalized }) {
+                    return category
+                }
+            }
+        }
+        return "etc"
+    }
+
 
     /** MediaStore에서 모든 사진 URI를 최신순으로 가져옵니다 */
     private suspend fun loadAllPhotoUris(): List<Uri> = withContext(Dispatchers.IO) {

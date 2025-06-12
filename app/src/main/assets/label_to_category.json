@@ -1,0 +1,38 @@
+{
+    "person": [
+      "person", "man", "woman", "boy", "girl", "human", "people",
+      "person in nature", "person walking", "person standing",
+      "selfie", "portrait", "crowd", "group", "worker", "child",
+      "bride", "groom", "student", "soldier", "athlete", "doctor",
+      "chef", "teacher", "tourist", "Black hair", "Hat","Happiness","Hair","Smile"
+      ,"Long hair", "Beauty"
+    ],
+    "animal": [
+      "animal", "dog", "cat", "bird", "horse", "cow", "sheep",
+      "elephant", "lion", "tiger", "bear", "fish", "reptile", "mammal",
+      "insect", "butterfly", "whale", "dolphin", "monkey", "giraffe",
+      "zebra", "rabbit", "rodent", "snake", "lizard", "frog",
+      "panda", "kangaroo", "penguin", "chicken", "duck", "goose",
+      "turkey", "pig", "hamster", "turtle", "octopus", "crab"
+    ],
+    "food": [
+      "food", "meal", "cuisine", "dish", "pizza", "burger", "sandwich",
+      "cake", "ice cream", "dessert", "chocolate", "fruit", "vegetable",
+      "salad", "soup", "bread", "pasta", "rice", "noodles", "sushi",
+      "steak", "seafood", "fish", "chicken", "meat", "pizza slice",
+      "shrimp", "taco", "burrito", "noodle", "curry", "dumpling",
+      "waffle", "pancake", "coffee", "tea", "juice",
+      "wine", "beer", "cocktail", "cheese", "yogurt", "egg",
+      "ice pop", "pie", "cookie", "chocolate bar"
+    ],
+    "landscape": [
+      "landscape", "nature", "outdoors", "mountain", "beach", "ocean",
+      "sea", "river", "lake", "forest", "tree", "flower", "park",
+      "sunset", "sunrise", "sky", "cloud", "desert", "waterfall",
+      "valley", "volcano", "canyon", "glacier", "island", "coast",
+      "shore", "rainforest", "meadow", "hill", "field", "plain",
+      "cliff", "cave", "jungle", "rock", "stone", "sand",
+      "sea wave", "rainbow", "meteor", "aurora"
+    ]
+  }
+  

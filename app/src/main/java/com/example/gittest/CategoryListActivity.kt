@@ -115,4 +115,25 @@ class CategoryListActivity : AppCompatActivity() {
             }
         }
     }
+
+    fun categorizeLabel(label: String, mapping: Map<String, List<String>>): String {
+        val normalized = label.lowercase()
+        for ((category, tagList) in mapping) {
+            if (tagList.any { it.lowercase() == normalized }) {
+                return category
+            }
+        }
+        return "etc"
+    }
+
+    fun getCategoryFromVisionTags(
+        visionTags: List<String>,
+        mapping: Map<String, List<String>>
+    ): String {
+        for (tag in visionTags) {
+            val category = categorizeLabel(tag, mapping)
+            if (category != "etc") return category // 첫 매칭된 카테고리 우선 리턴
+        }
+        return "etc"
+    }
 }
