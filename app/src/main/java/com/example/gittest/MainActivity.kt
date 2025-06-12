@@ -40,15 +40,37 @@ class MainActivity : AppCompatActivity() {
     private var currentLon: Double? = null
 
     private fun extractExif(uri: Uri): Triple<Double?, Double?, Long?> {
+        // Android Q 이상이면 requireOriginal 시도, 실패하면 그냥 uri 사용
         val originalUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            MediaStore.setRequireOriginal(uri)
+            try {
+                MediaStore.setRequireOriginal(uri)
+            } catch (e: Exception) {
+                uri
+            }
         } else {
             uri
         }
 
-        val input = contentResolver.openInputStream(originalUri) ?: return Triple(null, null, null)
-        val exif = ExifInterface(input)
-        input.close()
+        // 원본 URI로 열기 시도하다가 FileNotFound 나면 일반 URI로 재시도
+        val inputStream = try {
+            contentResolver.openInputStream(originalUri)
+        } catch (e: java.io.FileNotFoundException) {
+            try {
+                contentResolver.openInputStream(uri)
+            } catch (e2: Exception) {
+                null
+            }
+        }
+
+        // 둘 다 실패하면 null 반환
+        if (inputStream == null) {
+            Log.w("EXIFTest", "EXIF 스트림 열기 실패: $uri")
+            return Triple(null, null, null)
+        }
+
+        // EXIF 파싱
+        val exif = ExifInterface(inputStream)
+        inputStream.close()
 
         // 날짜
         val dateStr = exif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL)
@@ -65,6 +87,7 @@ class MainActivity : AppCompatActivity() {
 
         return Triple(lat, lon, timestamp)
     }
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
