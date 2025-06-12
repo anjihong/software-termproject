@@ -213,6 +213,12 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    override fun onResume() {
+        super.onResume()
+        // 홈으로 돌아올 때마다 최신 사진 목록을 다시 불러옵니다
+        loadLatestImages()
+    }
+
     private fun requestStoragePermissionIfNeeded() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             // Android 13 이상
